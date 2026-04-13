@@ -250,15 +250,15 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
               <div className="flex items-center gap-3 flex-wrap mb-2">
                 <span
                   className="px-2.5 py-1 text-[10px] font-bold rounded-full"
-                  style={STATUS_STYLES[property.status] ?? STATUS_STYLES.withdrawn}
+                  style={STATUS_STYLES[property.status ?? "withdrawn"] ?? STATUS_STYLES.withdrawn}
                 >
-                  {STATUS_LABELS[property.status] ?? property.status}
+                  {STATUS_LABELS[property.status ?? "withdrawn"] ?? property.status}
                 </span>
                 <span
                   className="text-[10px] font-bold uppercase tracking-wider"
                   style={{ color: "var(--color-text-muted)" }}
                 >
-                  {TYPE_LABELS[property.type] ?? property.type}
+                  {TYPE_LABELS[property.type ?? ""] ?? property.type}
                 </span>
                 {property.district && (
                   <span
@@ -282,7 +282,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                 className="text-2xl font-bold mt-3"
                 style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
               >
-                {property.price.toLocaleString("cs-CZ")} Kč
+                {(property.price ?? 0).toLocaleString("cs-CZ")} Kč
               </p>
             </div>
 

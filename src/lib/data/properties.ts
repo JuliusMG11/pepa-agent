@@ -1,8 +1,23 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 
-export type PropertySummary =
-  Database["public"]["Views"]["v_property_summary"]["Row"];
+// The view returns all columns nullable, but core fields are guaranteed non-null
+// by the underlying properties table constraints.
+type _ViewRow = Database["public"]["Views"]["v_property_summary"]["Row"];
+export type PropertySummary = Omit<
+  _ViewRow,
+  "id" | "title" | "address" | "city" | "status" | "type" | "price" | "created_at" | "updated_at"
+> & {
+  id: string;
+  title: string;
+  address: string;
+  city: string;
+  status: Database["public"]["Enums"]["property_status"];
+  type: Database["public"]["Enums"]["property_type"];
+  price: number;
+  created_at: string;
+  updated_at: string;
+};
 export type PropertyType = Database["public"]["Enums"]["property_type"];
 export type PropertyStatus = Database["public"]["Enums"]["property_status"];
 export type LeadStatus = Database["public"]["Enums"]["lead_status"];
