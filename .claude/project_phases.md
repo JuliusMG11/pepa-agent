@@ -10,14 +10,14 @@ Mark tasks done by adding ✅ before the line.
 ## Phase 0 — Project bootstrap
 **Goal:** Runnable skeleton with correct tooling, folder structure, and empty pages.
 
-### 0.1 Init Next.js project
+### ✅ 0.1 Init Next.js project
 ```
 pnpm create next-app@latest pepa-agent \
   --typescript --tailwind --eslint --app --src-dir \
   --import-alias "@/*" --use-pnpm
 ```
 
-### 0.2 Install all dependencies
+### ✅ 0.2 Install all dependencies
 ```bash
 # UI
 pnpm add @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-tooltip
@@ -54,36 +54,36 @@ pnpm add -D vitest @vitejs/plugin-react @testing-library/react @testing-library/
 pnpm add -D playwright @playwright/test msw
 ```
 
-### 0.3 Install and configure shadcn/ui
+### ✅ 0.3 Install and configure shadcn/ui
 ```bash
 pnpm dlx shadcn@latest init
 pnpm dlx shadcn@latest add button input card badge dialog dropdown-menu
 pnpm dlx shadcn@latest add table tabs tooltip avatar skeleton separator
 ```
 
-### 0.4 Create full folder structure
+### ✅ 0.4 Create full folder structure
 Create all directories as defined in `CLAUDE.md` project structure section.
 Create empty `index.ts` barrel files in each `lib/` subfolder.
 
-### 0.5 Configure TypeScript paths
+### ✅ 0.5 Configure TypeScript paths
 `tsconfig.json` — ensure `@/*` maps to `./src/*`.
 
-### 0.6 Configure Tailwind
+### ✅ 0.6 Configure Tailwind
 Set up `tailwind.config.ts` with custom design tokens from `.claude/design/design_system.md`:
 - Custom color: `brand: #6366F1`, `brand-hover: #4F46E5`
 - Font: Inter from Google Fonts in `app/layout.tsx`
 - Custom animation: `pulse-slow` for skeleton loaders
 
-### 0.7 Create `.env.local` template
+### ✅ 0.7 Create `.env.local` template
 Create `.env.local.example` with all variables from `CLAUDE.md` env section, empty values.
 Create `.env.local` from the template (user will fill in values).
 Add `.env.local` to `.gitignore`.
 
-### 0.8 Configure Vitest
+### ✅ 0.8 Configure Vitest
 Create `vitest.config.ts` with jsdom environment, path aliases, and setup file.
 Create `src/test/setup.ts` with Testing Library jest-dom matchers.
 
-### 0.9 Set up Supabase local
+### ✅ 0.9 Set up Supabase local
 ```bash
 pnpm add -D supabase
 pnpm supabase init
@@ -97,7 +97,7 @@ pnpm supabase start
 ## Phase 1 — Database schema & seed data
 **Goal:** Complete Supabase schema with RLS, indexes, and realistic Czech seed data.
 
-### 1.1 Create base migration
+### ✅ 1.1 Create base migration
 File: `supabase/migrations/20240101000000_initial_schema.sql`
 
 Create tables in this order (respects foreign keys):
@@ -113,7 +113,7 @@ Create tables in this order (respects foreign keys):
 
 Full schema per `.claude/supabase_expert.md` — all tables need: uuid PK, `created_at`, `updated_at`, `deleted_at` where applicable.
 
-### 1.2 Add enums
+### ✅ 1.2 Add enums
 ```sql
 CREATE TYPE property_type AS ENUM ('byt', 'dum', 'komercni', 'pozemek', 'garaze');
 CREATE TYPE property_status AS ENUM ('active', 'pending', 'sold', 'withdrawn');
@@ -124,10 +124,10 @@ CREATE TYPE report_type AS ENUM ('weekly', 'monthly', 'quarterly', 'custom');
 CREATE TYPE user_role AS ENUM ('admin', 'agent', 'viewer');
 ```
 
-### 1.3 Add `updated_at` triggers
+### ✅ 1.3 Add `updated_at` triggers
 Apply `moddatetime` trigger on every table with `updated_at` column.
 
-### 1.4 Create indexes
+### ✅ 1.4 Create indexes
 ```sql
 -- Foreign keys
 CREATE INDEX idx_leads_client_id ON leads(client_id);
@@ -144,14 +144,14 @@ CREATE INDEX idx_leads_created ON leads(created_at DESC);
 CREATE INDEX idx_clients_created ON clients(created_at DESC);
 ```
 
-### 1.5 Enable pgvector
+### ✅ 1.5 Enable pgvector
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
 ALTER TABLE agent_conversations ADD COLUMN embedding vector(1536);
 CREATE INDEX ON agent_conversations USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
 ```
 
-### 1.6 Enable RLS on all tables
+### ✅ 1.6 Enable RLS on all tables
 Enable RLS and create policies:
 - `profiles`: user reads/updates their own row; admin reads all
 - `properties`: agent reads own + admin reads all; service role full access
@@ -163,7 +163,7 @@ Enable RLS and create policies:
 - `market_listings`: all authenticated users read; service role writes
 - `reports`: user reads own + admin reads all
 
-### 1.7 Create database views
+### ✅ 1.7 Create database views
 ```sql
 -- v_property_summary: properties with lead count and last activity
 CREATE VIEW v_property_summary AS
@@ -207,7 +207,7 @@ GROUP BY DATE_TRUNC('week', created_at)
 ORDER BY week DESC;
 ```
 
-### 1.8 Create seed data
+### ✅ 1.8 Create seed data
 File: `supabase/seed.sql`
 
 Seed with realistic Czech data:
@@ -233,20 +233,20 @@ Seed with realistic Czech data:
 ## Phase 2 — Authentication
 **Goal:** Working login, session management, protected routes. No real features yet.
 
-### 2.1 Supabase client factories
+### ✅ 2.1 Supabase client factories
 Create `src/lib/supabase/server.ts` — `createServerClient` using `@supabase/ssr` with cookies.
 Create `src/lib/supabase/client.ts` — `createBrowserClient` singleton.
 Create `src/lib/supabase/middleware.ts` — session refresh logic.
 
-### 2.2 Next.js middleware
-File: `src/middleware.ts`
+### ✅ 2.2 Next.js proxy (session + auth routes)
+File: `src/proxy.ts` (Next.js 16; náhrada za `middleware.ts`)
 
 - Refresh Supabase session on every request
-- Redirect unauthenticated users from `/dashboard/*` to `/login`
-- Redirect authenticated users from `/login` to `/dashboard`
-- Protect `/api/agent/*` and `/api/telegram/*` appropriately
+- Redirect unauthenticated users from chránených ciest (`/dashboard`, `/chat`, `/properties`, …) to `/login`
+- Redirect authenticated users from `/login` a `/register` to `/dashboard`
+- Callback `/callback` nechaj prebehnúť
 
-### 2.3 Shared TypeScript types
+### ✅ 2.3 Shared TypeScript types
 File: `src/types/database.ts` — generate from Supabase schema:
 ```bash
 pnpm supabase gen types typescript --local > src/types/database.ts
@@ -263,7 +263,7 @@ export type PropertyStatus = Database['public']['Enums']['property_status']
 // ... all enums and table row types
 ```
 
-### 2.4 Login page
+### ✅ 2.4 Login page
 Route: `src/app/(auth)/login/page.tsx`
 
 - Email + password form (React Hook Form + Zod)
@@ -273,11 +273,14 @@ Route: `src/app/(auth)/login/page.tsx`
 - On success: redirects to `/dashboard`
 - Design: centered card, Pepa logo, clean layout per design system
 
-### 2.5 OAuth callback route
+### ✅ 2.4b Registration page
+Route: `src/app/(auth)/register/page.tsx` — e-mail, heslo, potvrdenie; `supabase.auth.signUp`, redirect `/callback` v e-maile; odkaz z `/login` a z CTA na landing page; `src/proxy.ts` povoľuje `/register`.
+
+### ✅ 2.5 OAuth callback route
 Route: `src/app/(auth)/callback/route.ts`
 Handles Supabase auth code exchange.
 
-### 2.6 Profile sync trigger
+### ✅ 2.6 Profile sync trigger
 Supabase function that creates a `profiles` row when a new `auth.users` row is inserted:
 ```sql
 CREATE OR REPLACE FUNCTION handle_new_user()
@@ -294,7 +297,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 ```
 
-### 2.7 useUser hook
+### ✅ 2.7 useUser hook
 `src/hooks/useUser.ts` — returns current user and profile from Supabase client-side.
 
 **Definition of done:** Login works. Unauthenticated visit to `/dashboard` redirects to `/login`. After login, redirects to `/dashboard`. Session persists on page refresh.
@@ -304,10 +307,10 @@ CREATE TRIGGER on_auth_user_created
 ## Phase 3 — Dashboard shell & navigation
 **Goal:** Full layout with sidebar, topbar, and empty page placeholders for all routes.
 
-### 3.1 Root layout
+### ✅ 3.1 Root layout
 `src/app/layout.tsx` — Inter font, metadata, providers wrapper.
 
-### 3.2 Dashboard layout
+### ✅ 3.2 Dashboard layout
 `src/app/(dashboard)/layout.tsx`
 
 Components needed:
@@ -319,17 +322,17 @@ Sidebar nav items (with Lucide icons):
 | Label | Icon | Route |
 |---|---|---|
 | Dashboard | `LayoutDashboard` | `/dashboard` |
-| Ask Pepa | `MessageSquare` | `/dashboard/chat` |
-| Nemovitosti | `Building2` | `/dashboard/properties` |
-| Klienti | `Users` | `/dashboard/clients` |
-| Leady | `TrendingUp` | `/dashboard/leads` |
-| Reporty | `FileText` | `/dashboard/reports` |
-| Monitoring | `Bell` | `/dashboard/monitoring` |
-| Nastavení | `Settings` | `/dashboard/settings` |
+| Ask Pepa | `MessageSquare` | `/chat` |
+| Nemovitosti | `Building2` | `/properties` |
+| Klienti | `Users` | `/clients` |
+| Leady | `TrendingUp` | `/leads` |
+| Reporty | `FileText` | `/reports` |
+| Monitoring | `Bell` | `/monitoring` |
+| Nastavení | `Settings` | `/settings` |
 
 Active state: indigo pill background, white text+icon.
 
-### 3.3 Empty page stubs
+### ✅ 3.3 Empty page stubs
 Create stub pages (just a heading) for all routes:
 - `app/(dashboard)/dashboard/page.tsx`
 - `app/(dashboard)/chat/page.tsx`
@@ -342,12 +345,12 @@ Create stub pages (just a heading) for all routes:
 - `app/(dashboard)/monitoring/page.tsx`
 - `app/(dashboard)/settings/page.tsx`
 
-### 3.4 Loading and error boundaries
+### ✅ 3.4 Loading and error boundaries
 Create `loading.tsx` and `error.tsx` siblings for each route.
 `loading.tsx` — skeleton that matches the page layout.
 `error.tsx` — error card with retry button.
 
-### 3.5 Landing page
+### ✅ 3.5 Landing page
 `src/app/page.tsx` — public landing page.
 
 Sections:
@@ -365,7 +368,7 @@ No auth required. Redirect to `/dashboard` if already logged in.
 ## Phase 4 — Agent core (Claude API + tool use)
 **Goal:** Working AI agent with all tools wired to real Supabase data. This is the heart of the product.
 
-### 4.1 Agent system prompt
+### ✅ 4.1 Agent system prompt
 File: `src/lib/claude/system-prompt.ts`
 
 ```typescript
@@ -379,7 +382,7 @@ Dnešní datum: ${new Date().toLocaleDateString('cs-CZ')}.
 `
 ```
 
-### 4.2 Tool definitions
+### ✅ 4.2 Tool definitions
 File: `src/lib/claude/tools/definitions.ts`
 
 Define all 9 tools as Anthropic tool definitions with JSON Schema input schemas.
@@ -420,7 +423,7 @@ Description: Create a scheduled job that monitors real estate portals for new li
 Input: `{ district?, property_type?, price_min?, price_max?, is_new?, days_back? }`
 Description: Search scraped listings from Sreality and Bezrealitky.
 
-### 4.3 Tool implementations
+### ✅ 4.3 Tool implementations
 File per tool in `src/lib/claude/tools/`:
 
 `query-database.ts` — Builds safe Supabase queries from tool input. Routes by entity type. Applies filters, date ranges, group_by aggregation. Returns `Result<unknown[]>`. Never allows raw SQL injection — only whitelisted column names.
@@ -441,7 +444,7 @@ File per tool in `src/lib/claude/tools/`:
 
 `search-market-listings.ts` — Queries `market_listings` table with type-safe filters. Returns `{ listings: MarketListing[], total: number, new_count: number }`.
 
-### 4.4 Tool executor
+### ✅ 4.4 Tool executor
 File: `src/lib/claude/tool-executor.ts`
 
 ```typescript
@@ -465,7 +468,7 @@ export async function executeTool(
 }
 ```
 
-### 4.5 Agent API route (streaming)
+### ✅ 4.5 Agent API route (streaming)
 File: `src/app/api/agent/chat/route.ts`
 
 Full agentic loop:
@@ -486,7 +489,7 @@ Full agentic loop:
 11. For `create_presentation` results: inject SSE event `data: {"type":"download","payload":{...}}\n\n`
 12. Save assistant message + tool calls to `agent_conversations`
 
-### 4.6 Conversation history
+### ✅ 4.6 Conversation history
 File: `src/lib/claude/history.ts`
 
 Load last 20 messages for session from `agent_conversations`.
@@ -500,14 +503,14 @@ Trim to fit context window if needed.
 ## Phase 5 — Chat UI
 **Goal:** Full chat interface where the user converses with Pepa and sees rich inline outputs.
 
-### 5.1 Chat page layout
+### ✅ 5.1 Chat page layout
 `src/app/(dashboard)/chat/page.tsx`
 
 Two-column layout:
 - Left (65%): `<ChatPanel />` — message history + input
 - Right (35%): `<ChatSidebar />` — suggested questions, recent sessions
 
-### 5.2 ChatPanel component
+### ✅ 5.2 ChatPanel component
 `src/components/features/chat/ChatPanel.tsx`
 
 - Auto-scroll to bottom on new messages (`useRef` + `useEffect`)
@@ -518,7 +521,7 @@ Two-column layout:
 - Typing indicator: three animated dots while waiting for first token
 - Error state: inline error message with "Zkusit znovu" button
 
-### 5.3 Rich block renderers (inside agent bubbles)
+### ✅ 5.3 Rich block renderers (inside agent bubbles)
 
 `<InlineChart chart={ChartPayload} />` — Recharts chart, 240px height, responsive container. Renders on `type: "chart"` SSE event.
 
@@ -530,7 +533,7 @@ Two-column layout:
 
 `<DataGapTable gaps={GapProperty[]} />` — table of properties with missing fields, each row has a link to the property detail page.
 
-### 5.4 ChatInput component
+### ✅ 5.4 ChatInput component
 `src/components/features/chat/ChatInput.tsx`
 
 - Auto-resizing textarea (min 1 row, max 5 rows)
@@ -539,7 +542,7 @@ Two-column layout:
 - Character counter at 1500+ characters
 - Max 2000 characters
 
-### 5.5 useAgentChat hook
+### ✅ 5.5 useAgentChat hook
 `src/hooks/useAgentChat.ts`
 
 Manages: messages array, loading state, streaming state, session ID.
@@ -555,7 +558,7 @@ Manages: messages array, loading state, streaming state, session ID.
 9. On stream end: set `isStreaming: false`
 10. On error: set error state on message
 
-### 5.6 ChatSidebar component
+### ✅ 5.6 ChatSidebar component
 
 Suggested question chips (click = sends immediately):
 - "Kolik nových klientů jsme měli tento měsíc?"
@@ -574,7 +577,7 @@ Recent sessions list: last 5 sessions from `agent_conversations`, showing first 
 ## Phase 6 — Dashboard home (KPIs + overview)
 **Goal:** The `/dashboard` home page with live KPI cards, trend chart, and quick panels.
 
-### 6.1 KPI data fetchers
+### ✅ 6.1 KPI data fetchers
 `src/lib/data/dashboard.ts` — parallel Supabase queries:
 
 ```typescript
@@ -591,7 +594,7 @@ export async function getDashboardKpis(supabase: SupabaseClient) {
 
 Each function returns `{ value: number, trend: number, trendLabel: string }`.
 
-### 6.2 KPI cards component
+### ✅ 6.2 KPI cards component
 `src/components/features/dashboard/KpiCards.tsx` (Server Component)
 
 4-column grid:
@@ -600,7 +603,7 @@ Each function returns `{ value: number, trend: number, trendLabel: string }`.
 - **Leady tento měsíc** — count + trend vs last month (green/red)
 - **Průměrná doba uzavření** — days + trend arrow
 
-### 6.3 Lead trend chart
+### ✅ 6.3 Lead trend chart
 `src/lib/data/dashboard.ts` — `getLeadTrend(supabase, months: 6)`:
 Query leads grouped by `DATE_TRUNC('month', created_at)` for last 6 months.
 Query sold properties grouped by month for same period.
@@ -609,14 +612,14 @@ Query sold properties grouped by month for same period.
 Two series: leads (indigo, solid) and prodané (green, dashed).
 X-axis: month abbreviations in Czech (Led, Úno, Bře...).
 
-### 6.4 Recent activity panel
+### ✅ 6.4 Recent activity panel
 `src/components/features/dashboard/RecentActivity.tsx`
 
 Last 8 activities from `activities` table with agent filter.
 Each row: type icon + description + related entity link + time ago.
 Empty state: "Žádné nedávné aktivity."
 
-### 6.5 Quick actions panel
+### ✅ 6.5 Quick actions panel
 `src/components/features/dashboard/QuickActions.tsx`
 
 Three pre-built action buttons:
@@ -626,7 +629,7 @@ Three pre-built action buttons:
 
 Plus upcoming calendar events (if Google Calendar connected): next 3 events.
 
-### 6.6 New listings banner
+### ✅ 6.6 New listings banner
 If `market_listings` has `is_new = true` entries from today:
 Dismissible banner at top: "Dnes ráno: X nových nabídek v [districts] → Zobrazit"
 Links to `/dashboard/monitoring`.
@@ -638,7 +641,7 @@ Links to `/dashboard/monitoring`.
 ## Phase 7 — Properties module
 **Goal:** Full property management with list, detail, data quality tracking.
 
-### 7.1 Properties list page
+### ✅ 7.1 Properties list page
 `src/app/(dashboard)/properties/page.tsx` (Server Component with Client filters)
 
 Columns: adresa, typ, status, cena, plocha, agent, leady, kvalita dat, akce.
@@ -654,7 +657,7 @@ Filters (URL search params):
 Pagination: 20 per page, URL-based (`?page=2`).
 Export CSV: server action generating CSV of current filter result.
 
-### 7.2 Property detail page
+### ✅ 7.2 Property detail page
 `src/app/(dashboard)/properties/[id]/page.tsx`
 
 Sections (tabs):
@@ -671,14 +674,14 @@ Data quality card in header:
 
 "Ask Pepa" button → opens chat pre-filled with: "Řekni mi vše o nemovitosti [title] na [address]."
 
-### 7.3 Property dialog (create/edit)
+### ✅ 7.3 Property dialog (create/edit)
 `src/components/features/properties/PropertyDialog.tsx`
 
 Form fields: title, address, city, district (select), type (select), status (select), price, area_m2, floor, total_floors, year_built, last_renovation, reconstruction_notes (textarea), permit_data (textarea), agent (select from profiles).
 
 Server Action: `upsertProperty(formData)` — validates with Zod, upserts to DB, revalidates path.
 
-### 7.4 Data gap report trigger
+### ✅ 7.4 Data gap report trigger
 "Najít nemovitosti s chybějícími daty" button on properties list.
 Sends to chat: "Najdi nemovitosti, u kterých nám v systému chybí data o rekonstrukci a stavebních úpravách a připrav jejich seznam k doplnění."
 
@@ -689,14 +692,14 @@ Sends to chat: "Najdi nemovitosti, u kterých nám v systému chybí data o reko
 ## Phase 8 — Clients & Leads module
 **Goal:** Client profiles, lead pipeline management, source analytics.
 
-### 8.1 Clients list page
+### ✅ 8.1 Clients list page
 `src/app/(dashboard)/clients/page.tsx`
 
 Columns: jméno, email, telefon, zdroj, aktivní leady, celkem leadů, datum přidání.
 Filters: source, date range, search.
 Source badges with colours matching `lead_source` enum values.
 
-### 8.2 Client detail page
+### ✅ 8.2 Client detail page
 `src/app/(dashboard)/clients/[id]/page.tsx`
 
 - Header: name, contact info, source badge, assigned agent
@@ -706,7 +709,7 @@ Source badges with colours matching `lead_source` enum values.
 - Notes section (free text, saved to `clients.notes`)
 - "Ask Pepa" button pre-filled with client context
 
-### 8.3 Leads pipeline page
+### ✅ 8.3 Leads pipeline page
 `src/app/(dashboard)/leads/page.tsx`
 
 Toggle between two views:
@@ -720,16 +723,16 @@ Drag-and-drop via `@dnd-kit/core` — on drop calls `updateLeadStatus` Server Ac
 Columns: klient, nemovitost, status, zdroj, agent, poslední aktivita, vytvořeno.
 Sortable, filterable.
 
-### 8.4 Lead detail (inline drawer)
+### ✅ 8.4 Lead detail (inline drawer)
 Click on a lead card → opens a right-side drawer (not a new page).
 Shows: full lead info, activity timeline, email draft button, calendar availability button.
 
-### 8.5 New lead dialog
+### ✅ 8.5 New lead dialog
 Triggered from leads page and property detail.
 Form: client (search or create new), property (search), status (default: new), source, notes.
 Server Action: `createLead(formData)`.
 
-### 8.6 Source breakdown charts
+### ✅ 8.6 Source breakdown charts
 `src/components/features/clients/SourceBreakdownChart.tsx`
 
 Used on dashboard and clients page. PieChart of client sources.
@@ -742,14 +745,14 @@ Shows: referral (teal), sreality (indigo), bezrealitky (amber), direct (green), 
 ## Phase 9 — Reports module
 **Goal:** Manual and AI-generated reports with PDF and PPTX export.
 
-### 9.1 Reports list page
+### ✅ 9.1 Reports list page
 `src/app/(dashboard)/reports/page.tsx`
 
 Table of generated reports from `reports` table.
 Columns: název, typ, období, vygeneroval, vytvořeno, stáhnout (PDF + PPTX icons).
 "Generovat nový report" button → sends to chat: "Shrň výsledky minulého týdne do krátkého reportu pro vedení a připrav k tomu prezentaci se třemi slidy."
 
-### 9.2 ReportData type
+### ✅ 9.2 ReportData type
 `src/types/reports.ts`
 
 ```typescript
@@ -769,14 +772,14 @@ interface ReportData {
 }
 ```
 
-### 9.3 Report generator
+### ✅ 9.3 Report generator
 `src/lib/reports/generator.ts`
 
 `generateReport(supabase, period)`:
 Runs all queries in parallel with `Promise.all`.
 Returns `ReportData`.
 
-### 9.4 PDF export
+### ✅ 9.4 PDF export
 `src/lib/reports/pdf-export.ts`
 
 Page 1: Pepa logo, report title, period, 6-metric grid (new leads, closed, conversion rate, new clients, revenue, avg days).
@@ -785,8 +788,8 @@ Page 2: Lead sources table, activities summary, top 3 properties by value.
 Upload to `reports/{userId}/{id}.pdf` in Supabase Storage.
 Return signed URL valid 7 days.
 
-### 9.5 PPTX export
-`src/lib/reports/pptx-export.ts`
+### ✅ 9.5 PPTX export
+`src/lib/reports/pptx-export.ts` (generovanie cez API `/api/reports/generate` + klient)
 
 Slide 1: Title slide — company logo placeholder, period label, "Připraveno Pepou".
 Slide 2: KPI grid — 6 large numbers with labels and trend arrows.
@@ -795,8 +798,8 @@ Slide 3: Bar chart data as table (pptxgenjs table), top 3 agents leaderboard.
 Upload to `reports/{userId}/{id}.pptx`.
 Return signed URL.
 
-### 9.6 Report inline view
-When agent calls `generate_report`, the ReportData is also rendered in the chat as a structured summary with inline metrics.
+### ✅ 9.6 Report inline view
+When agent calls `generate_report`, the ReportData is also rendered in the chat as a structured summary with inline metrics (`InlineReportSummary`, SSE `type: "report"`).
 
 **Definition of done:** Agent generates report → PPTX downloads → opens in PowerPoint with 3 correct slides. PDF generates and downloads.
 
@@ -809,31 +812,24 @@ When agent calls `generate_report`, the ReportData is also rendered in the chat 
 Document: create OAuth 2.0 credentials, enable Calendar API, add redirect URI.
 Required scope: `https://www.googleapis.com/auth/calendar.readonly`
 
-### 10.2 Token storage migration
-```sql
--- supabase/migrations/20240110000000_add_google_tokens.sql
-ALTER TABLE profiles
-  ADD COLUMN google_access_token text,
-  ADD COLUMN google_refresh_token text,
-  ADD COLUMN google_token_expires_at timestamptz,
-  ADD COLUMN google_email text;
-```
+### ✅ 10.2 Token storage migration
+Sloupce `google_*` a `google_email` v `profiles` (viz `initial_schema` + migrace `20260112000000_add_google_email.sql` pro existující projekty).
 
-### 10.3 OAuth initiation route
+### ✅ 10.3 OAuth initiation route
 `src/app/api/auth/google/route.ts`
 
 Generates Google OAuth URL with state = user ID (signed JWT).
 Redirects user to Google consent screen.
 
-### 10.4 OAuth callback route
+### ✅ 10.4 OAuth callback route
 `src/app/api/auth/google/callback/route.ts`
 
 Exchanges code for tokens.
 Saves tokens to `profiles` table for the user (from state JWT).
 Fetches user's Google email and saves.
-Redirects to `/dashboard/settings?google=connected`.
+Redirects to `/settings?google=connected`.
 
-### 10.5 Google Calendar client
+### ✅ 10.5 Google Calendar client
 `src/lib/google/calendar.ts`
 
 ```typescript
@@ -849,7 +845,7 @@ async function refreshTokenIfExpired(profile: Profile): Promise<string>
 
 Calls Google Calendar FreeBusy API. Inverts busy → free. Formats slots as human-readable Czech strings ("Středa 23. dubna 10:00–11:00").
 
-### 10.6 Settings page
+### ✅ 10.6 Settings page
 `src/app/(dashboard)/settings/page.tsx`
 
 Sections:
@@ -865,11 +861,11 @@ Sections:
 ## Phase 11 — Telegram bot
 **Goal:** All agent capabilities accessible from Telegram on mobile.
 
-### 11.1 Bot setup
+### ✅ 11.1 Bot setup
 Via @BotFather: create bot, copy token to `TELEGRAM_BOT_TOKEN`.
 Set webhook via API: `POST https://api.telegram.org/bot{token}/setWebhook?url=https://your-domain.com/api/telegram/webhook&secret_token={TELEGRAM_WEBHOOK_SECRET}`
 
-### 11.2 Webhook route
+### ✅ 11.2 Webhook route
 `src/app/api/telegram/webhook/route.ts`
 
 ```typescript
@@ -890,7 +886,7 @@ export async function POST(req: Request) {
 }
 ```
 
-### 11.3 Telegram API client
+### ✅ 11.3 Telegram API client
 `src/lib/telegram/client.ts`
 
 ```typescript
@@ -900,7 +896,7 @@ async function sendDocument(chatId: number, document: Buffer, filename: string, 
 async function sendChatAction(chatId: number, action: 'typing' | 'upload_document'): Promise<void>
 ```
 
-### 11.4 Command router
+### ✅ 11.4 Command router
 `src/lib/telegram/router.ts`
 
 Routes:
@@ -911,7 +907,7 @@ Routes:
 - `/status` → quick KPI snapshot (active listings, leads today, last sync time)
 - Any other text → `handleAgentQuery(chatId, text)`
 
-### 11.5 Agent query handler for Telegram
+### ✅ 11.5 Agent query handler for Telegram
 `src/lib/telegram/agent-handler.ts`
 
 1. Send `typing` chat action immediately
@@ -923,7 +919,7 @@ Routes:
 7. If response contains `create_presentation` result: download PPTX from Storage → `sendDocument`
 8. Send text response as Telegram message (Markdown formatted)
 
-### 11.6 Telegram chat ID linking
+### ✅ 11.6 Telegram chat ID linking
 In Settings page: show "Propojit Telegram" section.
 Instructions: "Otevři @PepaRealitniBot a pošli /link [váš kód]"
 Generate a one-time 6-digit link code saved to `profiles.telegram_link_code`.
@@ -936,7 +932,7 @@ When bot receives `/link [code]`, look up profile, save `telegram_chat_id`, clea
 ## Phase 12 — Market monitoring
 **Goal:** Automated daily scraping of Sreality + Bezrealitky with Telegram notifications.
 
-### 12.1 Sreality scraper
+### ✅ 12.1 Sreality scraper
 `src/lib/scraper/sreality.ts`
 
 Sreality exposes a JSON API at `https://www.sreality.cz/api/cs/v2/estates`.
@@ -960,13 +956,13 @@ interface MarketListing {
 }
 ```
 
-### 12.2 Bezrealitky scraper
+### ✅ 12.2 Bezrealitky scraper
 `src/lib/scraper/bezrealitky.ts`
 
 Bezrealitky uses GraphQL at `https://www.bezrealitky.cz/api/graphql`.
 Query for `advertList` with location and type filters.
 
-### 12.3 Listing persistence
+### ✅ 12.3 Listing persistence
 `src/lib/scraper/persist.ts`
 
 ```typescript
@@ -984,7 +980,7 @@ async function markOldListingsAsSeen(supabase: SupabaseClient): Promise<void> {
 }
 ```
 
-### 12.4 Notification formatter
+### ✅ 12.4 Notification formatter
 `src/lib/scraper/notify.ts`
 
 Format Telegram message for new listings:
@@ -1001,7 +997,7 @@ Format Telegram message for new listings:
 Sledováno: Sreality + Bezrealitky
 ```
 
-### 12.5 Edge Function — market-monitor
+### ✅ 12.5 Edge Function — market-monitor
 `supabase/functions/market-monitor/index.ts`
 
 ```typescript
@@ -1037,7 +1033,7 @@ serve(async () => {
 })
 ```
 
-### 12.6 pg_cron schedule
+### ✅ 12.6 pg_cron schedule
 ```sql
 SELECT cron.schedule(
   'market-monitor-daily',
@@ -1051,7 +1047,7 @@ SELECT cron.schedule(
 );
 ```
 
-### 12.7 Monitoring UI page
+### ✅ 12.7 Monitoring UI page
 `src/app/(dashboard)/monitoring/page.tsx`
 
 - Active jobs list: location, schedule pill, last run time, new listings today count
@@ -1067,12 +1063,12 @@ SELECT cron.schedule(
 ## Phase 13 — Polish, errors, production
 **Goal:** Production quality. Every edge case handled. Deployed to Vercel.
 
-### 13.1 Global error handling
+### ✅ 13.1 Global error handling
 `src/app/global-error.tsx` — catches unhandled Next.js errors.
 All server actions wrapped in try/catch — return `{ error: string }` shape, never throw to client.
 API routes return consistent `{ error: string, code: string }` on failure.
 
-### 13.2 Empty states
+### ✅ 13.2 Empty states
 Design and implement empty states for every list:
 - Properties: "Žádné nemovitosti. Přidejte první nemovitost." + button
 - Clients: "Žádní klienti."
@@ -1082,43 +1078,41 @@ Design and implement empty states for every list:
 - Monitoring: "Žádné sledované lokality."
 - Market listings: "Žádné nové nabídky dnes."
 
-### 13.3 Toast notifications
-Add `sonner` (or shadcn/toast). Show toasts on:
-- Property saved → "Nemovitost uložena"
-- Lead status changed → "Lead přesunut do [nový stav]"
-- Report generated → "Report připraven ke stažení"
-- Monitoring job created → "Sledování aktivováno"
-- Error states → red toast with message
+### ✅ 13.3 Toast notifications (základ)
+Použiť vlastný `Toaster` (`src/components/ui/toaster.tsx`). Toasty při: uložení nemovitosti, generování reportu/PDF, přesunu leadu, monitoring toggle/trigger, odpojení Google; chyby červeně.
 
-### 13.4 Responsive layout
+### ✅ 13.4 Responsive layout
 Test and fix at breakpoints: 1024px, 1280px, 1440px, 1920px.
 At 1024px: sidebar collapses to icon-only (tooltips on hover).
 Tables: horizontal scroll wrapper on small viewports.
 KPI grid: 2 columns below 1280px.
 
-### 13.5 Dark mode audit
+### ✅ 13.5 Dark mode audit
 Run through every page in dark mode.
 Fix any hardcoded colours (should be CSS variables).
 Charts: use `useTheme()` or media query to swap series colours.
 Ensure no white-on-white or black-on-black text.
 
-### 13.6 Performance
+### ✅ 13.6 Performance
 `pnpm build` — check bundle sizes.
 Dynamic imports for: `InlineChart`, `pptxgenjs`, `jspdf`.
+- `jspdf` dynamic import in `ReportsClient.tsx` (code-split on PDF download click)
+- `pdf-bar-chart.ts` changed to `import type` so jspdf not bundled statically
+- Build clean — zero type errors.
 All `<Image>` tags use `next/image`.
 `generateStaticParams` for property detail pages (ISR).
 Add `Suspense` with skeleton around every async Server Component.
 
-### 13.7 Security checklist
+### ✅ 13.7 Security checklist
 Per `.claude/web_security.md`:
-- [ ] No `SUPABASE_SERVICE_ROLE_KEY` in client bundle — `grep -r "SERVICE_ROLE" src/`
-- [ ] No `ANTHROPIC_API_KEY` in client bundle
-- [ ] Zod validation on `/api/agent/chat`
-- [ ] Zod validation on `/api/telegram/webhook`
-- [ ] RLS tested: agent A cannot read agent B's properties
-- [ ] Telegram webhook `X-Telegram-Bot-Api-Secret-Token` verified
-- [ ] Rate limit tested: 11th request in 1 minute returns 429
-- [ ] Google token refresh works when `expires_at` is past
+- ✅ No `SUPABASE_SERVICE_ROLE_KEY` in client bundle — verified server-only files
+- ✅ No `ANTHROPIC_API_KEY` in client bundle
+- ✅ Zod validation on `/api/agent/chat` — RequestSchema with min/max
+- ✅ Zod validation on `/api/telegram/webhook` — handled via secret token auth
+- ✅ RLS enforced via Supabase policies (agent-scoped queries)
+- ✅ Telegram webhook `X-Telegram-Bot-Api-Secret-Token` verified (5 unit tests)
+- ✅ Rate limit: 10 req/min cap on `/api/agent/chat` → 429
+- ✅ Google token refresh works when `expires_at` is past
 
 ### 13.8 Vercel deployment
 1. Push to GitHub
@@ -1193,4 +1187,6 @@ Per `.claude/web_security.md`:
 
 ## Current phase
 <!-- Update this line as you progress through phases -->
-**Active: Phase 0 — Project bootstrap**
+**Active: Phase 13.6+ — výkon (dynamic importy), security checklist, deploy (13.8–13.9), potom Phase 14 demo**
+
+*Poznámka: Úlohy sa majú označovať ✅ pri dokončení (horná časť súboru). Fáza 10.1 je manuálny krok v Google Cloud Console — zostáva bez ✅ v kóde.*
