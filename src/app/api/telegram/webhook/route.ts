@@ -1,4 +1,8 @@
+import { waitUntil } from "@vercel/functions";
 import { routeUpdate } from "@/lib/telegram/router";
+
+// Allow up to 60s for the Claude agent to respond
+export const maxDuration = 60;
 
 const ALLOWED_USER_IDS = (process.env.TELEGRAM_ALLOWED_USER_IDS ?? "")
   .split(",")
@@ -25,7 +29,6 @@ export async function POST(request: Request): Promise<Response> {
   const fromId = (message?.from as Record<string, unknown> | undefined)?.id as number | undefined;
 
   if (fromId !== undefined && ALLOWED_USER_IDS.length > 0 && !ALLOWED_USER_IDS.includes(fromId)) {
-    // Silently reject unknown users (or optionally send "access denied")
     const chatId = (message?.chat as Record<string, unknown> | undefined)?.id as number | undefined;
     if (chatId) {
       await fetch(
@@ -40,9 +43,13 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("OK");
   }
 
-  // Non-blocking — respond 200 immediately, process in background
-  routeUpdate(update).catch((err) =>
-    console.error("[Telegram webhook error]", err)
+  // Use waitUntil so Vercel keeps the function alive after returning OK
+  // This is required — without it, Vercel terminates the function immediately
+  // after the response and the agent never finishes processing
+  waitUntil(
+    routeUpdate(update).catch((err) =>
+      console.error("[Telegram webhook error]", err)
+    )
   );
 
   return new Response("OK");
