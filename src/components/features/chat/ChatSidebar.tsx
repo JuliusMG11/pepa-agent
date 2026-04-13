@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Sparkles, MessageSquarePlus, Trash2 } from "lucide-react";
-import type { ChatSessionRecord } from "@/lib/chat-storage";
+import type { SessionRecord } from "@/hooks/useAgentChat";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   VIEWING_EMAIL_SUGGESTED_QUESTION_CS,
@@ -20,7 +20,7 @@ const CHAT_ONLY_SUGGESTIONS = [
 
 interface ChatSidebarProps {
   onSuggest: (payload: ChatSidebarSuggestPayload) => void;
-  sessions: ChatSessionRecord[];
+  sessions: SessionRecord[];
   activeSessionId: string | null;
   onSelectSession: (id: string) => void;
   onNewChat: () => void;
@@ -81,7 +81,7 @@ export function ChatSidebar({
         <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
           {sessions.length === 0 ? (
             <p className="text-[11px]" style={{ color: "var(--color-text-muted)" }}>
-              Konverzace se ukládají v tomto prohlížeči.
+              Zatím žádné konverzace.
             </p>
           ) : (
             [...sessions]
