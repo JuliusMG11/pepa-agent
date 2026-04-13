@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pepa - Real Estate Back Office AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#575992",
+                    "on-secondary-container": "#494b83",
+                    "surface-container": "#f0ecf4",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#07006c",
+                    "surface": "#fcf8ff",
+                    "tertiary-fixed": "#ffdcc5",
+                    "secondary-fixed": "#e1e0ff",
+                    "inverse-on-surface": "#f3eff7",
+                    "on-tertiary-fixed": "#301400",
+                    "surface-tint": "#494bd6",
+                    "tertiary": "#904900",
+                    "on-surface": "#1b1b20",
+                    "outline-variant": "#c7c4d7",
+                    "surface-container-highest": "#e4e1e9",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#464554",
+                    "on-secondary-fixed-variant": "#404178",
+                    "on-tertiary-container": "#fffbff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#4648d4",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "on-secondary-fixed": "#13144a",
+                    "surface-variant": "#e4e1e9",
+                    "inverse-primary": "#c0c1ff",
+                    "on-background": "#1b1b20",
+                    "surface-container-low": "#f6f2fa",
+                    "inverse-surface": "#303036",
+                    "secondary-container": "#bdbefe",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb783",
+                    "on-tertiary-fixed-variant": "#703700",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "primary-container": "#6063ee",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "surface-dim": "#dcd9e0",
+                    "tertiary-container": "#b55d00",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e1e0ff",
+                    "surface-container-high": "#eae7ee",
+                    "surface-bright": "#fcf8ff",
+                    "background": "#fcf8ff",
+                    "on-primary-container": "#fffbff",
+                    "outline": "#767586",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">domain</span>
+</div>
+<span class="text-2xl font-bold tracking-tighter text-slate-900 dark:text-white">Pepa</span>
+</div>
+<div class="hidden md:flex items-center gap-8 font-inter tracking-tight font-semibold">
+<a class="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors" href="#">Solutions</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors" href="#">Properties</a>
+<a class="text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600" href="#">Pricing</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition-colors" href="#">Resources</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:block text-slate-600 dark:text-slate-400 font-semibold hover:text-indigo-500 transition-all scale-95 duration-150">Log In</button>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-semibold hover:bg-primary-container transition-all scale-95 duration-150">Get Started</button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-6 max-w-7xl mx-auto">
+<!-- Hero Section -->
+<section class="text-center mb-32 max-w-4xl mx-auto">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-container/30 border border-outline-variant/20 mb-8">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-sm font-semibold tracking-tight text-on-secondary-container">AI-powered back office</span>
+</div>
+<h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 leading-[1.1]">
+                Your back office, on <span class="bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">autopilot</span>
+</h1>
+<p class="text-lg md:text-xl text-on-surface-variant leading-relaxed mb-12 max-w-2xl mx-auto">
+                Pepa handles your emails, reports, calendar, and data so your team can focus on closing deals. The first AI designed specifically for real estate scale.
+            </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+<button class="w-full sm:w-auto px-10 py-4 bg-primary text-white font-bold rounded-xl text-lg shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+                    Start for free
+                </button>
+<button class="w-full sm:w-auto px-10 py-4 text-on-surface font-bold rounded-xl text-lg hover:bg-surface-container-low transition-colors">
+                    See a demo
+                </button>
+</div>
+<!-- Social Proof -->
+<div class="flex flex-col items-center gap-4">
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-2 border-surface" data-alt="professional portrait of a male real estate agent in a navy suit with a confident smile, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUW2r_yCiG19zrLBaQ5fZBC6p8OGUdnRUGEG2GC-2GheDNer5dBXgQL-bPwOS0AM-dzhhayOoVDJxzy5acGGYv_e9qCvhj88KAPUYpEHIOkc-9O4Ty1ALBUgmpW3_WLBDiTryAj8pOITL5eZNiba7kyFwLO8sIKj7VwNynVXvCyhMT5RZi9MTESuxM112ImH6SrFGg2OtpyRZkadPNhytQMho7RWFBe0ToT1BJNurOP7V_seebL57SHfdxBhRbnlPfTunwgJzatU4"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface" data-alt="close-up portrait of a woman real estate executive with glasses and professional attire, warm office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMohKiGDsw2IwqAYrURXlHI8-gIQHXf7tfCeV3KvofWes6yeXJAWWCDC_CQeQsGR1U4iBdK1jymZbd3WegPEAHwDzOcNLYCPdbvjO4yn4qPuReX_h7YBv644rJ723GWMNsv19uCzhCJUZXaVehGAKa8Vx7qmWNqdM1eRsEuZIyKKLbdXHWLhzidRDXpxVKuXYNGTUtXc0TDYZaSeBjYrHKCOZ8XAklZnkpdz2QXfCkwU2dI4j6ajVwPYttU7pAu0YZCY5vsjISzeE"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface" data-alt="headshot of a smiling young male entrepreneur in a modern workspace, natural sunlight from a window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKRO-sRnsuJziVL_LWdI5kLdxlHRMFLWkzGDDjKqdz9OgU0WsP6uDMhNralUFvVJGA-CNumqJjkGhBPBe6VvmoGo9Sfld06n4_fSOt-7f44b4W6nqQXNyoCScs3RCxPheVLsTRud3NSj-1vdcR_VGIkoz704RmZvAclHvbP-6EwC28AyYdHGsfMXNBOKguFEYXptW770njeAHQZemGE-5y_N58nZI16jNARVOrqwFnYBfJfs3bEpMXe8DghErlmRt1VZmbV6HaPb4"/>
+<img class="w-10 h-10 rounded-full border-2 border-surface" data-alt="confident professional woman with a bright smile in a sleek corporate environment, soft bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4BFFWGaUUr6Wx6dmWV6rHoybsZRTf8Er1NZbW6LnNbimQLKy-zbXjQLcX8qDtmu0M6SVLH07vizfdfdcdIKM_WQ5v_0ro2GhA7PpRcn5nsh00L9pxsOIY-70yvM2vjWGaiaSXN_AdpQj-HsL-kY9Unntj0GePpIKOjeEcSERI96iiLfoCv0csBuwlMmjTs3YAIfkJoYQYzoCHD0INVc8QqyQMWAqA6hDnVr4d4oclNj23zTfeobo08Iboq71g1V6kHFo9X2JtC8E"/>
+</div>
+<p class="text-sm font-semibold text-on-surface-variant uppercase tracking-widest">Trusted by 40+ real estate teams</p>
+</div>
+</section>
+<!-- Feature Grid Section -->
+<section class="space-y-12">
+<div class="text-center mb-16">
+<h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Intelligent automation for every task</h2>
+<div class="h-1 w-20 bg-primary mx-auto rounded-full"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">chat_bubble</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Natural language queries</h3>
+<p class="text-on-surface-variant leading-relaxed">Ask "Which deals are stalling in New York?" and get instant answers pulled from your CRM and emails.</p>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">mail</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Email drafts</h3>
+<p class="text-on-surface-variant leading-relaxed">Pepa identifies urgent leads and drafts context-aware responses using your personal brand voice.</p>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">calendar_today</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Calendar sync</h3>
+<p class="text-on-surface-variant leading-relaxed">Automatic scheduling for property tours and inspections. Pepa handles the back-and-forth for you.</p>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">assessment</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Automated reports</h3>
+<p class="text-on-surface-variant leading-relaxed">Generate weekly performance summaries for owners and stakeholders without opening a single spreadsheet.</p>
+</div>
+<!-- Card 5 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">search_check</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Data gap detection</h3>
+<p class="text-on-surface-variant leading-relaxed">AI monitors your listings and CRM to identify missing documents or outdated pricing information.</p>
+</div>
+<!-- Card 6 -->
+<div class="group bg-surface-container-lowest p-8 rounded-[12px] border border-outline-variant/30 transition-all duration-300 hover:border-primary hover:shadow-xl hover:shadow-primary/5">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center mb-6 group-hover:bg-primary-container/10">
+<span class="material-symbols-outlined text-primary text-2xl">wb_sunny</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Morning briefings</h3>
+<p class="text-on-surface-variant leading-relaxed">Receive a personalized audio or text briefing at 8 AM with your priorities for the day ahead.</p>
+</div>
+</div>
+</section>
+<!-- Dynamic Bento Section -->
+<section class="mt-40 grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+<div class="md:col-span-7 bg-primary-container rounded-[24px] p-12 text-on-primary-container flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="text-3xl font-extrabold mb-6 tracking-tight">The intelligence of a full-time assistant, at a fraction of the cost.</h3>
+<p class="text-lg opacity-90 max-w-md leading-relaxed">Our AI doesn't just process data; it understands the nuances of property management, tenant relations, and transaction coordination.</p>
+</div>
+<div class="mt-12 p-6 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs">AI</div>
+<span class="font-bold text-sm">Pepa Assistant</span>
+</div>
+<p class="text-sm italic">"I've drafted 4 lease renewal emails and scheduled the 2 PM walkthrough with the Smith family. Would you like me to run the background check for Unit 4B?"</p>
+</div>
+<div class="absolute -bottom-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+</div>
+<div class="md:col-span-5 grid grid-rows-2 gap-6">
+<div class="bg-surface-container-low rounded-[24px] p-8 border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary mb-4" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<h4 class="text-xl font-bold mb-2">99.9% Accuracy</h4>
+<p class="text-on-surface-variant text-sm">Trained on millions of real estate documents to ensure your data is always precise.</p>
+</div>
+<div class="bg-surface-container-low rounded-[24px] p-8 border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary mb-4" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<h4 class="text-xl font-bold mb-2">Enterprise Security</h4>
+<p class="text-on-surface-variant text-sm">SOC2 Type II compliant with end-to-end encryption for all property and client data.</p>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="mt-40 text-center py-20 bg-surface-container-low rounded-[40px]">
+<h2 class="text-4xl md:text-5xl font-extrabold tracking-tighter mb-6">Ready to scale your agency?</h2>
+<p class="text-on-surface-variant mb-12 text-lg">Join the future of real estate back office management today.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="bg-primary text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-primary-container transition-all">Start Your Free Trial</button>
+<button class="bg-transparent text-primary px-10 py-4 rounded-xl font-bold text-lg border-2 border-primary hover:bg-primary/5 transition-all">Talk to Sales</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface py-20 border-t border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="md:col-span-1">
+<div class="flex items-center gap-2 mb-6">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">domain</span>
+</div>
+<span class="text-2xl font-bold tracking-tighter text-slate-900 dark:text-white">Pepa</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed">Transforming the property landscape through intelligent AI automation.</p>
+</div>
+<div>
+<h5 class="font-bold mb-6">Product</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary" href="#">Features</a></li>
+<li><a class="hover:text-primary" href="#">Integrations</a></li>
+<li><a class="hover:text-primary" href="#">Enterprise</a></li>
+<li><a class="hover:text-primary" href="#">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Company</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary" href="#">About Us</a></li>
+<li><a class="hover:text-primary" href="#">Careers</a></li>
+<li><a class="hover:text-primary" href="#">Press</a></li>
+<li><a class="hover:text-primary" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6">Legal</h5>
+<ul class="space-y-4 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary" href="#">Cookie Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-8 mt-20 pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm text-on-surface-variant">© 2024 Pepa AI. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">hub</span></a>
+<a class="text-on-surface-variant hover:text-primary" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+</footer>
+</body></html>

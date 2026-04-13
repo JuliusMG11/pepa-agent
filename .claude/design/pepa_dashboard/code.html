@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pepa AI - Real Estate Back Office</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#575992",
+                        "on-secondary-container": "#494b83",
+                        "surface-container": "#f0ecf4",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#07006c",
+                        "surface": "#fcf8ff",
+                        "tertiary-fixed": "#ffdcc5",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-on-surface": "#f3eff7",
+                        "on-tertiary-fixed": "#301400",
+                        "surface-tint": "#494bd6",
+                        "tertiary": "#904900",
+                        "on-surface": "#1b1b20",
+                        "outline-variant": "#c7c4d7",
+                        "surface-container-highest": "#e4e1e9",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#464554",
+                        "on-secondary-fixed-variant": "#404178",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#4648d4",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-secondary-fixed": "#13144a",
+                        "surface-variant": "#e4e1e9",
+                        "inverse-primary": "#c0c1ff",
+                        "on-background": "#1b1b20",
+                        "surface-container-low": "#f6f2fa",
+                        "inverse-surface": "#303036",
+                        "secondary-container": "#bdbefe",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "primary-container": "#6063ee",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "surface-dim": "#dcd9e0",
+                        "tertiary-container": "#b55d00",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e1e0ff",
+                        "surface-container-high": "#eae7ee",
+                        "surface-bright": "#fcf8ff",
+                        "background": "#fcf8ff",
+                        "on-primary-container": "#fffbff",
+                        "outline": "#767586",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .bg-volume-shift { background-color: #f6f2fa; }
+        .no-line-rule { border: none !important; }
+        .glass-panel { backdrop-filter: blur(20px); background: rgba(252, 248, 255, 0.8); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e4e1e9; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- SideNavBar (Authority: JSON & Design System) -->
+<aside class="h-screen w-[220px] fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 flex flex-col p-6 z-40">
+<div class="mb-10 flex items-center gap-3">
+<span class="text-xl font-black text-indigo-600 tracking-tighter">Pepa AI</span>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active State: Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2 text-indigo-600 dark:text-indigo-400 font-semibold border-r-4 border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/20 transition-all ease-in-out duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all ease-in-out duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="text-sm font-medium">AI Insights</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all ease-in-out duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="text-sm font-medium">Portfolio</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all ease-in-out duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="text-sm font-medium">Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all ease-in-out duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4">
+<div class="bg-primary/10 rounded-xl p-4 border border-primary/20">
+<p class="text-xs font-bold text-primary mb-1">PRO PLAN</p>
+<p class="text-[10px] text-on-surface-variant leading-tight mb-3">Get advanced AI property matching and predictive analytics.</p>
+<button class="w-full bg-primary text-white text-[11px] font-bold py-2 rounded-lg hover:opacity-90 transition-opacity">Upgrade Now</button>
+</div>
+<div class="flex items-center gap-3 pt-4 border-t border-outline-variant/30">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="professional male real estate agent headshot in a suit with a modern office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSyGiRdSeD61Csx-vNW-Usm_4V2fMp5rNhU2sfhRkTiGSDeaj7x_1OgN4vUUbKfQdtLasEHqBgI9G21YDP0PaU_x-lhrYU8L_DS7H3Iq-vBaAllSQDBW6mdS87Pv7wwVNmVQ9WmhPC4v9R_mDW9av_g3aCKMBZw_c4qIPf_V6GBjNVKbaUw9SMJ-it9faj3OhCoi3ab2arY1baVsVkU3d3r07SlfEHC5mun42Td2MJ_2BSZ9npeGrrPEvlEq2U8vsDDJ1sWP2HE5w"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">Jan Novák</p>
+<p class="text-[10px] text-on-surface-variant truncate">Premium Tier</p>
+</div>
+<span class="material-symbols-outlined text-sm ml-auto text-slate-400" data-icon="logout">logout</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-[220px] min-h-screen flex flex-col bg-surface">
+<!-- TopBar -->
+<header class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto w-full sticky top-0 bg-surface/80 backdrop-blur-md z-30">
+<div>
+<h1 class="text-2xl font-bold tracking-tighter text-on-surface">Good morning, Pepa 👋</h1>
+<p class="text-sm text-on-surface-variant font-medium">Here's what's happening in your Prague portfolio today.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-highest transition-colors relative">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<div class="h-10 w-px bg-outline-variant/30"></div>
+<button class="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    New Analysis
+                </button>
+</div>
+</header>
+<section class="px-8 pb-12 max-w-7xl mx-auto w-full space-y-8">
+<!-- KPI Row (The Digital Architect Style) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant tracking-widest uppercase mb-1">New clients Q1</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold tracking-tighter">24</span>
+<span class="flex items-center gap-1 text-[11px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+                            +12%
+                        </span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant tracking-widest uppercase mb-1">Active listings</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold tracking-tighter">87</span>
+<span class="text-[11px] font-medium text-on-surface-variant">Market Average: 64</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant tracking-widest uppercase mb-1">Leads this month</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold tracking-tighter">143</span>
+<span class="flex items-center gap-1 text-[11px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+                            +8%
+                        </span>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<p class="text-xs font-bold text-on-surface-variant tracking-widest uppercase mb-1">Avg days to close</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-bold tracking-tighter">34</span>
+<span class="flex items-center gap-1 text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs" data-icon="arrow_downward">arrow_downward</span>
+                            -3 days
+                        </span>
+</div>
+</div>
+</div>
+<!-- Main Content: 55/45 Split -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Ask Pepa Chat Panel (55%) -->
+<div class="col-span-12 lg:col-span-7 flex flex-col h-[500px] bg-surface-container-low rounded-xl overflow-hidden border border-outline-variant/20">
+<div class="px-6 py-4 bg-surface-container-lowest border-b border-outline-variant/10 flex items-center gap-3">
+<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+<span class="text-sm font-bold text-on-surface">Ask Pepa AI</span>
+<span class="text-[10px] font-medium text-on-surface-variant ml-auto">Real-time Analysis</span>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-4">
+<!-- User Bubble -->
+<div class="flex justify-end">
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg">
+<p class="text-sm leading-relaxed">Pepa, show me the rental yield comparison for Vinohrady vs. Smíchov for 2-bedroom apartments.</p>
+</div>
+</div>
+<!-- Agent Bubble -->
+<div class="flex justify-start">
+<div class="bg-surface-container-lowest p-4 rounded-2xl rounded-tl-none max-w-[85%] shadow-sm border border-outline-variant/10">
+<p class="text-sm leading-relaxed mb-4">Based on the latest Q3 data for Prague, Vinohrady continues to command higher rents, but Smíchov shows stronger appreciation due to the new development projects. Here is the breakdown:</p>
+<!-- Embedded Data Chart/Table -->
+<div class="bg-primary/5 rounded-lg p-3 border border-primary/10">
+<div class="flex items-center justify-between mb-2">
+<span class="text-[10px] font-bold text-primary uppercase">Rental Yield Comparison</span>
+<span class="text-[10px] text-on-surface-variant">Prague 2024</span>
+</div>
+<div class="space-y-2">
+<div>
+<div class="flex justify-between text-[11px] font-medium mb-1">
+<span>Vinohrady (P2)</span>
+<span>3.8%</span>
+</div>
+<div class="w-full bg-primary/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[76%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] font-medium mb-1">
+<span>Smíchov (P5)</span>
+<span>4.2%</span>
+</div>
+<div class="w-full bg-primary/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[84%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest">
+<div class="flex items-center bg-surface-container-low rounded-full px-4 py-2 border border-transparent focus-within:border-primary transition-all">
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm" placeholder="Ask about property valuations, market trends..." type="text"/>
+<button class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Tasks & Events (45%) -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Recent Tasks -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-on-surface">Recent Tasks</h3>
+<button class="text-primary text-xs font-bold">View all</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 flex items-center justify-center rounded border-2 border-primary bg-primary text-white">
+<span class="material-symbols-outlined text-[14px]" data-icon="check">check</span>
+</div>
+<span class="text-sm font-medium line-through text-on-surface-variant">Review contract for Korunní 12</span>
+<span class="ml-auto text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container rounded-full">Done</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 border-2 border-outline rounded"></div>
+<span class="text-sm font-medium">Verify documents - Vodičkova duplex</span>
+<span class="ml-auto text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">In Progress</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-5 h-5 border-2 border-outline rounded"></div>
+<span class="text-sm font-medium">Send appraisal to Mr. Horák</span>
+<span class="ml-auto text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container rounded-full">Pending</span>
+</div>
+</div>
+</div>
+<!-- Upcoming Events -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_4px_20px_rgba(70,72,212,0.03)] border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-on-surface">Upcoming Events</h3>
+<button class="text-primary text-xs font-bold">Calendar</button>
+</div>
+<div class="space-y-3">
+<div class="flex items-start gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="text-center">
+<p class="text-[10px] font-bold text-primary uppercase">Oct</p>
+<p class="text-xl font-black text-on-surface">14</p>
+</div>
+<div>
+<p class="text-sm font-bold group-hover:text-primary transition-colors">Property Viewing: Vinohrady</p>
+<p class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="schedule">schedule</span> 14:30 - 15:30
+                                    </p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="text-center">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Oct</p>
+<p class="text-xl font-black text-on-surface-variant">16</p>
+</div>
+<div>
+<p class="text-sm font-bold group-hover:text-primary transition-colors">Client Briefing: Industrial Portfolio</p>
+<p class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="schedule">schedule</span> 09:00 - 10:30
+                                    </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Properties Table -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-outline-variant/10 overflow-hidden">
+<div class="px-8 py-6 flex items-center justify-between border-b border-outline-variant/10">
+<div>
+<h2 class="text-lg font-bold">Recent properties</h2>
+<p class="text-xs text-on-surface-variant font-medium">Tracking the latest movements across Prague districts.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container text-xs font-bold rounded-lg hover:bg-surface-container-highest transition-colors">Export CSV</button>
+<button class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity">Filter List</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low/50">
+<tr>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Address</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Type</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Status</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Price</th>
+<th class="px-6 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Last updated</th>
+<th class="px-8 py-4 text-[10px] font-bold text-on-surface-variant tracking-widest uppercase text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="modern luxury apartment exterior in Vinohrady Prague with large glass windows and elegant facade" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUlMBkh5r29UU88zkkMV6jjdMKwJ9E827AspaaW9Tqun6zIW4D_M4WoMp1oJDIIYz48LrRN4Lz2DkeNe44aWiYc-byIpvBnt9ci7M9ovJlj0AT5NnRI_4eIJJLWJMz2xN5iCrgtrJZotur42KlwcFF6AAhabFC_MBRAUGkNqJNQMcWppVU3iP9kDmFtb8rzy7L3_A8TjAaIlYCO9nz4P14_Gu_IOXtbH2TtQswF7vTLpEduKbic1_3CYKN36UV5pttdlWyGMeEIqk"/>
+</div>
+<div>
+<p class="text-sm font-bold">Vinohradská 12, Prague 2</p>
+<p class="text-[10px] text-on-surface-variant">Apartment • 124m²</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">Residential</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">Active</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold">14,200,000 CZK</td>
+<td class="px-6 py-4 text-[11px] text-on-surface-variant">2 hours ago</td>
+<td class="px-8 py-4 text-right">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="historic building in Prague old town with ornate baroque architecture details and red rooftops" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-TWyWMd05eMyMyWEQZ-hf8iqQGN1sJsGGwp24Vf9Na90fCfETUTO3oCccjJOM879iLKJxQynPYk4lTFdaq8C6737V31rjWroW2Sc8ebOXm0lvKNrB1EFS_b30crgi5yS-6KylYnM4d-RnJDHpxE1lFy8dIKXqSocLJ1ZY7ynfjtOckYYV623L0_GkDsvZAl53i2AuVKMzIY0A5jVK7IOA2YVHisbjye-dHJmYkklAvYr5TCWDiQ4Xq3WrJubVnJhLk1nnSa7EbZA"/>
+</div>
+<div>
+<p class="text-sm font-bold">Vodičkova 34, Prague 1</p>
+<p class="text-[10px] text-on-surface-variant">Penthouse • 210m²</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">Luxury</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full">Pending</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold">2,450,000 EUR</td>
+<td class="px-6 py-4 text-[11px] text-on-surface-variant">Yesterday</td>
+<td class="px-8 py-4 text-right">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="modern glass office building in Smíchov district Prague with reflective windows and steel structures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR2LUqFRxMggVhiDYStGwnRIqSZxzxM3A1Sopsok9q6qq5VQXWc2GnG393A56iqVcs-ziAkmFWO_-Q6rgn8icRddMq0VXMZ0y0JEEFgmf1a_jsgkqVxIdeOg3aLvZ9dTqWpEq1qjplL-fI2QFdm19rxGiomTQdWC0IaEEuHHtnSKEpVMsiowaFH6yVUU7PdPzcwitidbTvrhhO8b_vWZQjTaRw22CX0WzEWGmR7HBxGfrZn8qaOLg7RqtkiyqQUvpxKsi9rwF3rxM"/>
+</div>
+<div>
+<p class="text-sm font-bold">Nádražní 22, Prague 5</p>
+<p class="text-[10px] text-on-surface-variant">Office Space • 450m²</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm font-medium">Commercial</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full">Sold</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold">38,500,000 CZK</td>
+<td class="px-6 py-4 text-[11px] text-on-surface-variant">3 days ago</td>
+<td class="px-8 py-4 text-right">
+<button class="text-primary hover:bg-primary/10 p-2 rounded-full transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 bg-surface-container-low flex justify-between items-center">
+<p class="text-[11px] text-on-surface-variant">Showing 3 of 87 listings</p>
+<div class="flex gap-2">
+<button class="p-1.5 rounded bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-1.5 rounded bg-surface-container-lowest border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB (Only on Dashboard) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-[0_10px_30px_rgba(70,72,212,0.3)] flex items-center justify-center hover:scale-105 transition-transform z-50">
+<span class="material-symbols-outlined text-2xl" data-icon="chat">chat</span>
+</button>
+</body></html>

@@ -3,7 +3,19 @@
     "allow": [
       "Bash(pnpm create:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm supabase:*)",
+      "Bash(pnpm build:*)",
+      "Bash(claude mcp:*)",
+      "WebFetch(domain:stitch.anthropic.com)",
+      "Bash(curl -sI \"https://stitch.withanthropics.com/projects/2232936496160387521\")",
+      "Bash(curl -sI \"https://stitch.anthropic.com/api/projects/2232936496160387521\")",
+      "Bash(curl -sL \"https://storage.googleapis.com/stitch-assets/2232936496160387521/48250e4d641d4baab78592a47b7ef17c\" -w \"\\\\nHTTP_STATUS:%{http_code}\" -o /dev/null)",
+      "Bash(curl -sL \"https://assets.anthropic.com/stitch/48250e4d641d4baab78592a47b7ef17c\" -w \"\\\\nHTTP_STATUS:%{http_code}\" -o /dev/null)",
+      "WebFetch(domain:stitch.withgoogle.com)",
+      "Bash(pnpm vitest:*)",
+      "Bash(ls \"/Users/juliuspetrik/Documents/Github/Back office operation agent/playwright.config\"*)"
     ]
   },
   "enableAllProjectMcpServers": true,
