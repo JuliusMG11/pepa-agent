@@ -89,6 +89,7 @@ export async function POST(request: Request): Promise<Response> {
     name: string;
     input: Record<string, unknown>;
   }> = [];
+  const richBlocksForHistory: Array<{ type: string; payload: unknown }> = [];
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -119,6 +120,7 @@ export async function POST(request: Request): Promise<Response> {
           },
 
           onEvent(type, payload) {
+            richBlocksForHistory.push({ type, payload });
             sendSse(stringifyForModel({ type, payload }));
           },
         });
@@ -149,6 +151,10 @@ export async function POST(request: Request): Promise<Response> {
               toolCalls:
                 toolCallsForHistory.length > 0
                   ? toolCallsForHistory
+                  : undefined,
+              richBlocks:
+                richBlocksForHistory.length > 0
+                  ? richBlocksForHistory
                   : undefined,
             },
             supabase

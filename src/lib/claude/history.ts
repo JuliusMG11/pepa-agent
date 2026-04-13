@@ -118,6 +118,7 @@ export async function saveAssistantMessage(
     content: string;
     toolCalls?: Array<{ id: string; name: string; input: Record<string, unknown> }>;
     toolResults?: Array<{ tool_use_id: string; content: string }>;
+    richBlocks?: Array<{ type: string; payload: unknown }>;
   },
   supabase: SupabaseClient<Database>
 ): Promise<void> {
@@ -132,6 +133,9 @@ export async function saveAssistantMessage(
     content: params.content || null,
     tool_calls: params.toolCalls?.length
       ? (params.toolCalls as unknown as Json)
+      : null,
+    rich_blocks: params.richBlocks?.length
+      ? (params.richBlocks as unknown as Json)
       : null,
   });
 
