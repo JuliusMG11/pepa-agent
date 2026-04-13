@@ -117,14 +117,185 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Stitch / Pepa design tokens */
+:root {
+  /* Primary brand — Indigo #4648d4 */
+  --color-brand:          #4648d4;
+  --color-brand-hover:    #6063ee;
+  --color-brand-light:    #e1e0ff;
+  --color-brand-text:     #07006c;
+
+  /* Surfaces — Material Design 3 inspired */
+  --color-bg-page:        #fcf8ff;
+  --color-bg-card:        #ffffff;
+  --color-bg-subtle:      #f6f2fa;
+  --color-bg-sidebar:     #f8f5fc;
+  --color-surface:        #fcf8ff;
+  --color-surface-low:    #f6f2fa;
+  --color-surface-mid:    #f0ecf4;
+  --color-surface-high:   #eae7ee;
+  --color-surface-highest:#e4e1e9;
+
+  /* Text */
+  --color-text-primary:   #1b1b20;
+  --color-text-secondary: #464554;
+  --color-text-muted:     #767586;
+  --color-text-invert:    #ffffff;
+
+  /* Borders */
+  --color-border:         rgba(199,196,215,0.30);
+  --color-border-strong:  rgba(199,196,215,0.60);
+
+  /* Semantic */
+  --color-success-bg:     #dcfce7;
+  --color-success-text:   #166534;
+  --color-warning-bg:     #fef3c7;
+  --color-warning-text:   #92400e;
+  --color-error-bg:       #ffdad6;
+  --color-error-text:     #ba1a1a;
+  --color-neutral-bg:     #f0ecf4;
+  --color-neutral-text:   #464554;
+
+  /* Signature shadow (indigo-tinted) */
+  --shadow-card: 0 4px 20px rgba(70,72,212,0.04);
+  --shadow-float: 0 20px 40px rgba(70,72,212,0.06);
+
+  /* Buttons / charts */
+  --color-on-brand:       #ffffff;
+  --color-chart-grid:     rgba(199,196,215,0.3);
+  --color-chart-tooltip-bg: #ffffff;
+  --color-chart-tooltip-border: rgba(199,196,215,0.3);
+  --color-chart-sold:     #166534;
+  --color-topbar-bg:      rgba(252,248,255,0.85);
+}
+
+/* Pepa tokens — dark mode */
+.dark {
+  --color-brand:          #9b9dff;
+  --color-brand-hover:    #b4b5ff;
+  --color-brand-light:    rgba(155,157,255,0.18);
+  --color-brand-text:     #e8e8ff;
+
+  --color-bg-page:        #131118;
+  --color-bg-card:        #1b1822;
+  --color-bg-subtle:      #17141d;
+  --color-bg-sidebar:     #16131c;
+  --color-surface:        #131118;
+  --color-surface-low:    #17141d;
+  --color-surface-mid:    #211e28;
+  --color-surface-high:   #2a2633;
+  --color-surface-highest:#34303d;
+
+  --color-text-primary:   #f1f0f5;
+  --color-text-secondary: #c4c2d0;
+  --color-text-muted:     #9492a3;
+  --color-text-invert:    #131118;
+
+  --color-border:         rgba(255,255,255,0.12);
+  --color-border-strong:  rgba(255,255,255,0.22);
+
+  --color-success-bg:     rgba(34,197,94,0.15);
+  --color-success-text:   #86efac;
+  --color-warning-bg:     rgba(251,191,36,0.12);
+  --color-warning-text:   #fde68a;
+  --color-error-bg:       rgba(248,113,113,0.12);
+  --color-error-text:     #fca5a5;
+  --color-neutral-bg:     #211e28;
+  --color-neutral-text:   #c4c2d0;
+
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-float: 0 20px 48px rgba(0,0,0,0.5);
+
+  --color-on-brand:       #141218;
+  --color-chart-grid:     rgba(255,255,255,0.1);
+  --color-chart-tooltip-bg: var(--color-bg-card);
+  --color-chart-tooltip-border: rgba(255,255,255,0.14);
+
+  /* Recharts / landing chart lines */
+  --color-chart-sold:     #4ade80;
+  --color-topbar-bg:      rgba(19,17,24,0.88);
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Monitoring „Spustit nyní“ — moderní indeterminate progress */
+@keyframes monitoring-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+@keyframes monitoring-radar-sweep {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+@keyframes monitoring-ring-pulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 32px rgba(70, 72, 212, 0.12);
+  }
+  50% {
+    box-shadow: 0 10px 40px rgba(70, 72, 212, 0.22);
+  }
+}
+@keyframes monitoring-success-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.monitoring-run-progress-inner {
+  animation: monitoring-progress-slide 1.35s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(70, 72, 212, 0.35);
+}
+.monitoring-run-radar {
+  animation: monitoring-radar-sweep 2.2s ease-in-out infinite alternate;
+}
+.monitoring-run-icon-ring {
+  animation: monitoring-ring-pulse 2s ease-in-out infinite;
+}
+.monitoring-run-success-pop {
+  animation: monitoring-success-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
-    @apply font-sans;
+    @apply font-sans antialiased;
+    background-color: var(--color-bg-page);
+  }
+  body {
+    @apply min-h-full;
+    background-color: var(--color-bg-page);
+    color: var(--color-text-primary);
+  }
+
+  button:not(:disabled):not([disabled]),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
+  }
+
+  a[href]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
 }

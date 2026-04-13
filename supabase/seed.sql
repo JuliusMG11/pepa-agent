@@ -2,17 +2,29 @@
 -- Pepa Agent — Seed Data
 -- Realistic Czech real estate data for development and demo
 -- Run: pnpm supabase db reset (applies migrations then this file)
+--
+-- Volitelně hustší časová os (~2 měsíce + dnes): po resetu spusťte
+--   supabase/seed_recent_two_months.sql (viz komentář v tom souboru).
 -- =============================================================
 
 -- -------------------------
+-- AUTH USERS (required before profiles due to FK)
+-- Local dev only — do not run in production
+-- -------------------------
+INSERT INTO auth.users (id, email, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, encrypted_password)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', 'jan.novak@pepa-demo.cz',     NOW(), NOW(), NOW(), '{"provider":"email","providers":["email"]}', '{}', false, crypt('heslo123', gen_salt('bf'))),
+  ('00000000-0000-0000-0000-000000000002', 'marie.kovarikova@pepa-demo.cz', NOW(), NOW(), NOW(), '{"provider":"email","providers":["email"]}', '{}', false, crypt('heslo123', gen_salt('bf'))),
+  ('00000000-0000-0000-0000-000000000003', 'tomas.hruby@pepa-demo.cz',   NOW(), NOW(), NOW(), '{"provider":"email","providers":["email"]}', '{}', false, crypt('heslo123', gen_salt('bf')))
+ON CONFLICT (id) DO NOTHING;
+
+-- -------------------------
 -- PROFILES (agents)
--- Note: auth.users must be created first via Supabase Auth
--- For local dev, these UUIDs are used as placeholders
 -- -------------------------
 INSERT INTO profiles (id, full_name, email, role, created_at) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Jan Novák', 'jan.novak@pepa-demo.cz', 'admin', NOW() - INTERVAL '6 months'),
-  ('00000000-0000-0000-0000-000000000002', 'Marie Kovaříková', 'marie.kovarikova@pepa-demo.cz', 'agent', NOW() - INTERVAL '6 months'),
-  ('00000000-0000-0000-0000-000000000003', 'Tomáš Hrubý', 'tomas.hruby@pepa-demo.cz', 'agent', NOW() - INTERVAL '4 months')
+  ('00000000-0000-0000-0000-000000000001', 'Jan Novák',          'jan.novak@pepa-demo.cz',        'admin', NOW() - INTERVAL '6 months'),
+  ('00000000-0000-0000-0000-000000000002', 'Marie Kovaříková',   'marie.kovarikova@pepa-demo.cz', 'agent', NOW() - INTERVAL '6 months'),
+  ('00000000-0000-0000-0000-000000000003', 'Tomáš Hrubý',        'tomas.hruby@pepa-demo.cz',      'agent', NOW() - INTERVAL '4 months')
 ON CONFLICT (id) DO NOTHING;
 
 -- -------------------------
@@ -180,10 +192,10 @@ INSERT INTO activities (id, type, title, description, related_to_type, related_t
 -- -------------------------
 -- MONITORING JOBS (3 active)
 -- -------------------------
-INSERT INTO monitoring_jobs (id, name, locations, enabled, notify_telegram, schedule, last_run_at, next_run_at, created_at) VALUES
-('50000000-0000-0000-0000-000000000001', 'Praha Holešovice — byty do 8M', ARRAY['Praha Holešovice'], true, true, 'daily_morning', NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', NOW()-INTERVAL '30 days'),
-('50000000-0000-0000-0000-000000000002', 'Praha Vinohrady — byty 3+kk a větší', ARRAY['Praha Vinohrady'], true, true, 'daily_morning', NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', NOW()-INTERVAL '25 days'),
-('50000000-0000-0000-0000-000000000003', 'Praha Žižkov — všechny typy', ARRAY['Praha Žižkov'], true, false, 'daily_morning', NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', NOW()-INTERVAL '20 days');
+INSERT INTO monitoring_jobs (id, name, query, locations, enabled, notify_telegram, notify_email, last_run_at, next_run_at, created_by, created_at) VALUES
+('50000000-0000-0000-0000-000000000001', 'Praha Holešovice — byty do 8M',         'byt Holešovice cena do 8000000',   ARRAY['Praha Holešovice'], true, true,  false, NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', '00000000-0000-0000-0000-000000000001', NOW()-INTERVAL '30 days'),
+('50000000-0000-0000-0000-000000000002', 'Praha Vinohrady — byty 3+kk a větší',   'byt 3+kk Vinohrady',               ARRAY['Praha Vinohrady'], true,  true,  false, NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', '00000000-0000-0000-0000-000000000002', NOW()-INTERVAL '25 days'),
+('50000000-0000-0000-0000-000000000003', 'Praha Žižkov — všechny typy',            'nemovitost Žižkov',                ARRAY['Praha Žižkov'],    true,  false, false, NOW()-INTERVAL '1 day', NOW()+INTERVAL '23 hours', '00000000-0000-0000-0000-000000000001', NOW()-INTERVAL '20 days');
 
 -- -------------------------
 -- MARKET LISTINGS (sample scraped data — 15 listings)
