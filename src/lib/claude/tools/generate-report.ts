@@ -39,6 +39,8 @@ export interface ReportData {
   activitiesByType?: { label: string; count: number }[];
   propertiesByDistrict?: { district: string; count: number; revenue: number }[];
   weeklyBreakdown?: { week: string; leads: number; sold: number }[];
+  topProperties?: import("@/types/reports").TopProperty[];
+  pipelineFunnel?: import("@/types/reports").PipelineStage[];
 }
 
 function isoWeek(d: Date): string {
