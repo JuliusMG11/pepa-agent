@@ -74,6 +74,7 @@ export async function buildAgentReportPdfBuffer(
 
   const { metrics } = report;
   const convStr = convPct(metrics);
+  const generatedDate = new Date().toLocaleDateString("cs-CZ");
 
   function drawFooter(pageNum: number): void {
     const totalPages = doc.getNumberOfPages();
@@ -82,7 +83,7 @@ export async function buildAgentReportPdfBuffer(
     doc.setFontSize(7);
     doc.setTextColor(MUTED);
     doc.text(
-      `Pepa · Back Office Operations  ·  Strana ${pageNum} z ${totalPages}  ·  Vygenerováno ${new Date().toLocaleDateString("cs-CZ")}`,
+      `Pepa · Back Office Operations  ·  Strana ${pageNum} z ${totalPages}  ·  Vygenerováno ${generatedDate}`,
       14,
       290
     );
