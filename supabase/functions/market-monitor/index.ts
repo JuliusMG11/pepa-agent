@@ -168,18 +168,16 @@ async function scrapeSreality(district: string, filters: Record<string, unknown>
     if (!res.ok) return [];
 
     const data = await res.json() as {
-      _embedded?: {
-        estates?: Array<{
-          hash_id: number;
-          name: string;
-          locality: string;
-          price: number;
-          price_czk?: { value_raw: number };
-          seo?: Seo;
-        }>;
-      };
+      estates?: Array<{
+        hash_id: number;
+        name: string;
+        locality: string;
+        price: number;
+        price_czk?: { value_raw: number };
+        seo?: Seo;
+      }>;
     };
-    const estates = data?._embedded?.estates ?? [];
+    const estates = data?.estates ?? [];
 
     return await Promise.all(
       estates.map(async (e) => {

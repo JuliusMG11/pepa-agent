@@ -29,9 +29,9 @@ const DISTRICT_KEYWORDS: Record<string, string[]> = {
   "Praha 10": ["praha 10", "praha-10", "strašnice", "strasnice"],
 };
 
-function addressKey(advert: Record<string, unknown>): string {
+function dynamicKey(advert: Record<string, unknown>, prefix: string): string {
   const keys = Object.keys(advert);
-  const k = keys.find((x) => x.startsWith("address("));
+  const k = keys.find((x) => x.startsWith(prefix));
   const v = k ? advert[k] : null;
   return typeof v === "string" ? v : "";
 }
@@ -73,7 +73,11 @@ export async function scrapeBezrealitkyVypis(options: {
     };
     const cache = data.props?.pageProps?.apolloCache ?? {};
 
-    const listKey = Object.keys(cache).find(
+    // listAdverts now lives inside ROOT_QUERY; fall back to top-level for older SSR snapshots
+    const rootQuery = (cache["ROOT_QUERY"] ?? {}) as Record<string, unknown>;
+    const searchIn: Record<string, unknown> = Object.keys(rootQuery).length > 0 ? rootQuery : cache;
+
+    const listKey = Object.keys(searchIn).find(
       (k) =>
         k.includes("listAdverts") &&
         k.includes("BYT") &&
@@ -82,7 +86,7 @@ export async function scrapeBezrealitkyVypis(options: {
     );
     if (!listKey) return [];
 
-    const listEntry = cache[listKey] as { list?: unknown } | undefined;
+    const listEntry = searchIn[listKey] as { list?: unknown } | undefined;
     const refs = Array.isArray(listEntry?.list) ? listEntry!.list : [];
     const out: RawListing[] = [];
 
@@ -102,7 +106,7 @@ export async function scrapeBezrealitkyVypis(options: {
       const advert = cache[`Advert:${id}`] as Record<string, unknown> | undefined;
       if (!advert || typeof advert.uri !== "string") continue;
 
-      const addr = addressKey(advert);
+      const addr = dynamicKey(advert, "address(");
       const addrNorm = addr.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
       if (!matchesDistrict(district, addrNorm)) continue;
 
@@ -112,10 +116,8 @@ export async function scrapeBezrealitkyVypis(options: {
       }
       const surface =
         typeof advert.surface === "number" ? advert.surface : null;
-      const title =
-        typeof advert.imageAltText === "string"
-          ? advert.imageAltText
-          : `Byt — ${addr || district}`;
+      const imageAltText = dynamicKey(advert, "imageAltText(");
+      const title = imageAltText || `Byt — ${addr || district}`;
 
       out.push({
         source: "bezrealitky",
