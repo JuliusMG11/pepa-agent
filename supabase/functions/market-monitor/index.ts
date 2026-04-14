@@ -229,8 +229,8 @@ const BEZ_DISTRICT_KW: Record<string, string[]> = {
   "Praha 10": ["praha 10", "praha-10", "strašnice", "strasnice"],
 };
 
-function bezAddressKey(advert: Record<string, unknown>): string {
-  const k = Object.keys(advert).find((x) => x.startsWith("address("));
+function bezDynamicKey(advert: Record<string, unknown>, prefix: string): string {
+  const k = Object.keys(advert).find((x) => x.startsWith(prefix));
   const v = k ? advert[k] : null;
   return typeof v === "string" ? v : "";
 }
@@ -285,7 +285,11 @@ async function scrapeBezrealitky(district: string, filters: Record<string, unkno
     };
     const cache = data.props?.pageProps?.apolloCache ?? {};
 
-    const listKey = Object.keys(cache).find(
+    // listAdverts moved into ROOT_QUERY in newer SSR snapshots; fall back to top-level
+    const rootQuery = (cache["ROOT_QUERY"] ?? {}) as Record<string, unknown>;
+    const searchIn: Record<string, unknown> = Object.keys(rootQuery).length > 0 ? rootQuery : cache;
+
+    const listKey = Object.keys(searchIn).find(
       (k) =>
         k.includes("listAdverts") &&
         k.includes("BYT") &&
@@ -294,7 +298,7 @@ async function scrapeBezrealitky(district: string, filters: Record<string, unkno
     );
     if (!listKey) return [];
 
-    const listEntry = cache[listKey] as { list?: unknown } | undefined;
+    const listEntry = searchIn[listKey] as { list?: unknown } | undefined;
     const refs = Array.isArray(listEntry?.list) ? listEntry!.list : [];
     const out: RawListing[] = [];
 
@@ -311,7 +315,7 @@ async function scrapeBezrealitky(district: string, filters: Record<string, unkno
       const advert = cache[`Advert:${id}`] as Record<string, unknown> | undefined;
       if (!advert || typeof advert.uri !== "string") continue;
 
-      const addr = bezAddressKey(advert);
+      const addr = bezDynamicKey(advert, "address(");
       const addrNorm = addr.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
       if (!bezMatchesDistrict(district, addrNorm)) continue;
 
@@ -319,8 +323,8 @@ async function scrapeBezrealitky(district: string, filters: Record<string, unkno
       if (Number.isFinite(priceMax as number) && priceMax != null && price > priceMax) continue;
 
       const surface = typeof advert.surface === "number" ? advert.surface : null;
-      const title =
-        typeof advert.imageAltText === "string" ? advert.imageAltText : `Byt — ${addr || district}`;
+      const imageAltText = bezDynamicKey(advert, "imageAltText(");
+      const title = imageAltText || `Byt — ${addr || district}`;
 
       out.push({
         source: "bezrealitky",
