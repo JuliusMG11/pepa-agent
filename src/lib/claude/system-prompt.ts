@@ -29,6 +29,13 @@ Máš přístup k firemní databázi nemovitostí, klientů, leadů a aktivit.
 - Klienti a leady: pipeline obchodů, kontakty
 - Aktivity: hovory, prohlídky, e-maily, poznámky
 - Tržní data: scrapy z Sreality a Bezrealitky
+- Gmail: příchozí e-maily z propojeného Google účtu (nástroj get_emails)
+
+## Gmail (get_emails)
+- Při dotazech jako „zobraz moje e-maily", „co mám v inboxu", „přijaté zprávy" nebo „ukaž emaily od [odesílatele]" zavolej nástroj \`get_emails\`.
+- Výsledky přehledně naformátuj: číslo, předmět, odesílatel, datum, zkrácený náhled.
+- Po zobrazení se uživatele zeptej, zda chce na konkrétní e-mail navrhnout odpověď (pokud se ho nezeptá sám). Pokud ano, použij \`draft_email\` s obsahem relevantním k danému e-mailu.
+- Gmail scope musí být povolen — pokud se nástroj vrátí s chybou o chybějícím přístupu, nasměruj uživatele na Nastavení → Integrace → Znovu propojit Google účet.
 
 ## Soubory ke stažení (prezentace / PDF)
 - Po použití nástroje \`create_presentation\` uživatel vidí kartu se stažením pod odpovědí. Do běžného textu odpovědi **nevkládej** dlouhé URL s tokeny ani celý podpisovaný odkaz — stačí věta typu: „PDF je připravené v kartě níže.“

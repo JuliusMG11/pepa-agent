@@ -5,8 +5,9 @@ import { CheckCircle2, FileText, Sparkles, XCircle } from "lucide-react";
 
 const STATUS_LINES = [
   "Sbírám data z databáze…",
-  "Skládám PDF pro klienta…",
-  "Nahrávám do úložiště…",
+  "Skládám datový report (PDF)…",
+  "Generuji prezentaci (PDF)…",
+  "Nahrávám oba soubory…",
 ];
 
 export type ReportGenPhase = "running" | "success" | "error";
@@ -129,7 +130,7 @@ export function ReportGenerateModal({
                 className="relative mt-4 text-center text-[11px] font-medium uppercase tracking-[0.12em]"
                 style={{ color: "var(--color-text-muted)" }}
               >
-                Výstup bude PDF vhodné pro klienta
+                Datový report + prezentace (PDF, landscape)
               </p>
             </>
           )}
@@ -151,10 +152,10 @@ export function ReportGenerateModal({
                 className="mt-5 text-lg font-bold tracking-tight"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                PDF je připravené
+                Report a prezentace jsou připraveny
               </h2>
               <p className="mt-2 text-sm" style={{ color: "var(--color-text-muted)" }}>
-                Můžete ho stáhnout v přehledu níže.
+                Stáhněte datový report nebo prezentaci v přehledu níže.
               </p>
               <div className="mt-4 flex justify-center gap-1">
                 <Sparkles size={14} style={{ color: brand }} className="opacity-80" />

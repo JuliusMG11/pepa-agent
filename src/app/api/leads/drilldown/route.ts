@@ -5,19 +5,14 @@ import {
   getLeadPipelineByCreatedRange,
   getLeadPipelineByIds,
 } from "@/lib/data/clients";
+import { normalizeUuid } from "@/lib/validation/uuid";
 
-const BodySchema = z
-  .object({
-    lead_ids: z.array(z.string().uuid()).max(500).optional(),
-    period_from: z.string().optional(),
-    period_to: z.string().optional(),
-  })
-  .refine(
-    (b) =>
-      (b.lead_ids && b.lead_ids.length > 0) ||
-      (b.period_from && b.period_to),
-    { message: "Zadejte lead_ids nebo period_from a period_to." }
-  );
+const BodySchema = z.object({
+  /** Model často doplní neplatné řetězce — filtrujeme přes normalizeUuid. */
+  lead_ids: z.array(z.string()).max(500).optional(),
+  period_from: z.string().optional(),
+  period_to: z.string().optional(),
+});
 
 export async function POST(request: Request): Promise<Response> {
   let json: unknown;
@@ -41,17 +36,31 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: "Nepřihlášený uživatel." }, { status: 401 });
   }
 
-  const { lead_ids, period_from, period_to } = parsed.data;
+  const { lead_ids: rawLeadIds, period_from, period_to } = parsed.data;
+
+  const normalizedLeadIds = [...new Set((rawLeadIds ?? []).map(normalizeUuid))]
+    .filter((id): id is string => id !== null)
+    .slice(0, 500);
 
   try {
-    const leads =
-      lead_ids && lead_ids.length > 0
-        ? await getLeadPipelineByIds(supabase, lead_ids)
-        : await getLeadPipelineByCreatedRange(
-            supabase,
-            period_from!,
-            period_to!
-          );
+    let leads;
+    if (normalizedLeadIds.length > 0) {
+      leads = await getLeadPipelineByIds(supabase, normalizedLeadIds);
+    } else if (period_from && period_to) {
+      leads = await getLeadPipelineByCreatedRange(
+        supabase,
+        period_from,
+        period_to
+      );
+    } else {
+      return NextResponse.json(
+        {
+          error:
+            "Chybí platné UUID leadů nebo rozmezí period_from a period_to. Zeptejte se znovu; graf by měl obsahovat buď skutečná ID z databáze, nebo období měsíce.",
+        },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({
       leads: leads.map((l) => ({

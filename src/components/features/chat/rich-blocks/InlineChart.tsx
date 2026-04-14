@@ -19,32 +19,11 @@ import {
   Legend,
 } from "recharts";
 import type { ChartPayload } from "@/lib/claude/tools/render-chart";
+import { chartRowHasLeadDrilldownMeta } from "@/lib/utils/chart-lead-drilldown";
 import { ChartLeadDrilldownModal } from "./ChartLeadDrilldownModal";
 
 interface InlineChartProps {
   chart: ChartPayload;
-}
-
-/** Row metadata for bar click → lead drilldown (see render_chart tool docs). */
-function rowHasDrilldownMeta(row: Record<string, unknown>): boolean {
-  const ids = row.lead_ids;
-  if (Array.isArray(ids) && ids.some((x) => typeof x === "string" && x.length > 0)) {
-    return true;
-  }
-  if (typeof ids === "string" && ids.trim().startsWith("[")) {
-    try {
-      const p = JSON.parse(ids) as unknown;
-      if (Array.isArray(p) && p.some((x) => typeof x === "string")) return true;
-    } catch {
-      /* ignore */
-    }
-  }
-  return (
-    typeof row.period_from === "string" &&
-    typeof row.period_to === "string" &&
-    row.period_from.length > 0 &&
-    row.period_to.length > 0
-  );
 }
 
 export function InlineChart({ chart }: InlineChartProps) {
@@ -58,11 +37,11 @@ export function InlineChart({ chart }: InlineChartProps) {
   const [drilldownLabel, setDrilldownLabel] = useState("");
 
   const barDrilldownEnabled =
-    chart_type === "bar" && safeData.some((row) => rowHasDrilldownMeta(row));
+    chart_type === "bar" && safeData.some((row) => chartRowHasLeadDrilldownMeta(row));
 
   const handleBarRectangleClick = (item: { payload?: Record<string, unknown> }) => {
     const payload = item.payload;
-    if (!payload || !rowHasDrilldownMeta(payload)) return;
+    if (!payload || !chartRowHasLeadDrilldownMeta(payload)) return;
     setDrilldownPayload(payload);
     setDrilldownLabel(String(payload[xKey] ?? ""));
     setDrilldownOpen(true);

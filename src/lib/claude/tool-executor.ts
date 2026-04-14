@@ -10,6 +10,7 @@ import { createPresentationTool, type CreatePresentationInput } from "./tools/cr
 import { renderChartTool, type RenderChartInput } from "./tools/render-chart";
 import { createMonitoringJobTool, type CreateMonitoringJobInput } from "./tools/create-monitoring-job";
 import { searchMarketListingsTool, type SearchMarketListingsInput } from "./tools/search-market-listings";
+import { getEmailsTool, type GetEmailsInput } from "./tools/get-emails";
 
 export interface ToolContext {
   userId: string;
@@ -65,6 +66,9 @@ export async function executeTool(
         as<SearchMarketListingsInput>(toolInput),
         context
       );
+
+    case "get_emails":
+      return getEmailsTool(as<GetEmailsInput>(toolInput), context);
 
     default:
       throw new Error(`Unknown tool: ${toolName}`);

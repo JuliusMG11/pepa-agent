@@ -6,6 +6,7 @@ import type { ReportData as AgentReportData } from "./tools/generate-report";
 import type { ChartPayload } from "./tools/render-chart";
 import type { EmailDraft } from "./tools/draft-email";
 import type { PresentationResult } from "./tools/create-presentation";
+import type { EmailListResult } from "./tools/get-emails";
 
 /** Avoid oversized tool payloads breaking the Anthropic request; strip non-JSON Error instances */
 const MAX_TOOL_RESULT_JSON_CHARS = 100_000;
@@ -118,6 +119,10 @@ export async function runAgent(params: RunAgentParams): Promise<string> {
           if (res.success) {
             onEvent("report", res.data);
           }
+        }
+        if (toolUse.name === "get_emails") {
+          const res = result as Result<EmailListResult>;
+          if (res.success && res.data) onEvent("email_list", res.data);
         }
 
         return {

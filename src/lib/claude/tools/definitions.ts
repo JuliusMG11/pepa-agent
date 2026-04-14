@@ -288,6 +288,30 @@ export const toolDefinitions: Anthropic.Tool[] = [
     },
   },
   {
+    name: "get_emails",
+    description:
+      "Fetch the user's Gmail inbox messages. Use when asked about emails, received messages, or specific senders. Returns subject, sender, snippet and body excerpt for each message.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        max_results: {
+          type: "number",
+          description: "Number of messages to return (1–20). Default 10.",
+        },
+        unread_only: {
+          type: "boolean",
+          description: "If true, return only unread messages.",
+        },
+        query: {
+          type: "string",
+          description:
+            "Gmail search query, e.g. 'from:jan@firma.cz' or 'subject:nabídka'. Supports full Gmail search syntax.",
+        },
+      },
+      required: [],
+    },
+  },
+  {
     name: "search_market_listings",
     description:
       "Search scraped listings from Sreality and Bezrealitky. Use to find market data, compare prices, or analyse competition.",

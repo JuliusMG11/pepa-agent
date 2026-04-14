@@ -6,6 +6,7 @@ import {
   buildCustomPeriod,
 } from "@/lib/reports/generator";
 import { buildDashboardReportPdfBuffer } from "@/lib/reports/dashboard-report-pdf";
+import { buildPresentationPdfBuffer } from "@/lib/reports/presentation-pdf";
 import { generateReportPdfNarrative } from "@/lib/reports/report-ai-narrative";
 import type { ReportData, ReportPeriod } from "@/types/reports";
 
@@ -68,29 +69,45 @@ export async function POST(request: Request): Promise<Response> {
     authorName,
     companyLine: "Pepa · Back Office",
   });
-  const pdfBuffer = await buildDashboardReportPdfBuffer(title, reportData, {
-    authorName,
-    companyLine: "Pepa · Back Office",
-    narrative,
-  });
+
+  // Build both PDFs in parallel
+  const [pdfBuffer, presentationBuffer] = await Promise.all([
+    buildDashboardReportPdfBuffer(title, reportData, {
+      authorName,
+      companyLine: "Pepa · Back Office",
+      narrative,
+    }),
+    buildPresentationPdfBuffer(title, reportData, narrative?.closingLine),
+  ]);
 
   const reportId = crypto.randomUUID();
   const storagePath = `${user.id}/${reportId}.pdf`;
+  const presentationPath = `${user.id}/${reportId}-prezentace.pdf`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("reports")
-    .upload(storagePath, pdfBuffer, {
+  // Upload both in parallel
+  const [uploadResult, presentationUploadResult] = await Promise.all([
+    supabase.storage.from("reports").upload(storagePath, pdfBuffer, {
       contentType: "application/pdf",
       upsert: false,
-    });
+    }),
+    supabase.storage.from("reports").upload(presentationPath, presentationBuffer, {
+      contentType: "application/pdf",
+      upsert: false,
+    }),
+  ]);
 
-  if (uploadError) {
-    return Response.json({ error: `Storage upload failed: ${uploadError.message}` }, { status: 500 });
+  if (uploadResult.error) {
+    return Response.json({ error: `Storage upload failed: ${uploadResult.error.message}` }, { status: 500 });
   }
 
-  const { data: urlData } = await supabase.storage
-    .from("reports")
-    .createSignedUrl(storagePath, 60 * 60 * 24 * 7);
+  const [urlResult, presentationUrlResult] = await Promise.all([
+    supabase.storage.from("reports").createSignedUrl(storagePath, 60 * 60 * 24 * 7),
+    presentationUploadResult.error
+      ? Promise.resolve({ data: null })
+      : supabase.storage.from("reports").createSignedUrl(presentationPath, 60 * 60 * 24 * 7),
+  ]);
+
+  const urlData = urlResult;
 
   const { data: reportRow, error: dbError } = await supabase
     .from("reports")
@@ -114,6 +131,7 @@ export async function POST(request: Request): Promise<Response> {
   return Response.json({
     report: reportRow,
     reportData,
-    pdfUrl: urlData?.signedUrl ?? null,
+    pdfUrl: urlData?.data?.signedUrl ?? null,
+    presentationPdfUrl: presentationUrlResult?.data?.signedUrl ?? null,
   });
 }

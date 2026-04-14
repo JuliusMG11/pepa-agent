@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink, Loader2, X } from "lucide-react";
+import { uniqueNormalizedLeadIdsFromChartRow } from "@/lib/utils/chart-lead-drilldown";
 
 const STATUS_CS: Record<string, string> = {
   new: "Nový",
@@ -31,24 +32,6 @@ interface ChartLeadDrilldownModalProps {
   onClose: () => void;
 }
 
-function parseLeadIds(row: Record<string, unknown>): string[] {
-  const v = row.lead_ids;
-  if (Array.isArray(v)) {
-    return v.filter((x): x is string => typeof x === "string");
-  }
-  if (typeof v === "string") {
-    try {
-      const p = JSON.parse(v) as unknown;
-      if (Array.isArray(p)) {
-        return p.filter((x): x is string => typeof x === "string");
-      }
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
-
 export function ChartLeadDrilldownModal({
   open,
   bucketLabel,
@@ -66,7 +49,7 @@ export function ChartLeadDrilldownModal({
       return;
     }
 
-    const leadIds = parseLeadIds(rowPayload);
+    const leadIds = uniqueNormalizedLeadIdsFromChartRow(rowPayload);
     const periodFrom =
       typeof rowPayload.period_from === "string"
         ? rowPayload.period_from

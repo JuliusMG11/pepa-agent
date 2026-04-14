@@ -11,6 +11,7 @@ import {
   Calendar,
   ChevronDown,
   Trash2,
+  Presentation,
 } from "lucide-react";
 import type { Report } from "@/types/app";
 import type { ReportData } from "@/types/reports";
@@ -46,6 +47,7 @@ interface GeneratedReport {
   report: Report;
   reportData: ReportData;
   pdfUrl: string | null;
+  presentationPdfUrl: string | null;
 }
 
 interface Props {
@@ -115,7 +117,7 @@ export function ReportsClient({ initialReports }: Props) {
       setLastGenerated(json);
       setReports((prev) => [json.report, ...prev]);
       setGenPhase("success");
-      toast.success("PDF report je připravený ke stažení");
+      toast.success("Report a prezentace jsou připraveny ke stažení");
       window.setTimeout(() => {
         setGenModalOpen(false);
         setGenProgress(0);
@@ -312,11 +314,11 @@ export function ReportsClient({ initialReports }: Props) {
                 {lastGenerated.report.title}
               </p>
               <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-                Právě vygenerováno — PDF vhodné pro klienta
+                Právě vygenerováno — datový report + prezentace (PDF)
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {lastGenerated.pdfUrl && (
               <a
                 href={lastGenerated.pdfUrl}
@@ -326,27 +328,21 @@ export function ReportsClient({ initialReports }: Props) {
                 style={{ backgroundColor: "var(--color-brand)", color: "var(--color-on-brand)" }}
               >
                 <Download size={13} />
-                Otevřít PDF
+                Report (PDF)
               </a>
             )}
-            <button
-              onClick={() =>
-                handleDownloadPdf(lastGenerated.report, lastGenerated.reportData)
-              }
-              disabled={pdfLoading === lastGenerated.report.id}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style={{
-                backgroundColor: "rgba(70,72,212,0.1)",
-                color: "var(--color-brand)",
-              }}
-            >
-              {pdfLoading === lastGenerated.report.id ? (
-                <Loader2 size={13} className="animate-spin" />
-              ) : (
-                <FileText size={13} />
-              )}
-              PDF
-            </button>
+            {lastGenerated.presentationPdfUrl && (
+              <a
+                href={lastGenerated.presentationPdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                style={{ backgroundColor: "rgba(13,148,136,0.12)", color: "#0d9488" }}
+              >
+                <Presentation size={13} />
+                Prezentace (PDF)
+              </a>
+            )}
           </div>
         </div>
       )}
