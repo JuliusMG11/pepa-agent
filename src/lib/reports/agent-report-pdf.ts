@@ -75,6 +75,19 @@ export async function buildAgentReportPdfBuffer(
   const { metrics } = report;
   const convStr = convPct(metrics);
 
+  function drawFooter(pageNum: number): void {
+    const totalPages = doc.getNumberOfPages();
+    doc.setPage(pageNum);
+    applyPdfFont(doc, fontFam, false);
+    doc.setFontSize(7);
+    doc.setTextColor(MUTED);
+    doc.text(
+      `Pepa · Back Office Operations  ·  Strana ${pageNum} z ${totalPages}  ·  Vygenerováno ${new Date().toLocaleDateString("cs-CZ")}`,
+      14,
+      290
+    );
+  }
+
   // ── Strana 1: hero + KPI ──
   doc.setFillColor(BRAND);
   doc.rect(0, 0, W, 36, "F");
@@ -162,14 +175,6 @@ export async function buildAgentReportPdfBuffer(
       : "Prodeje nemovitostí v období bez přiřazeného agenta nebo bez záznamu.",
     18,
     y + 9
-  );
-
-  doc.setFontSize(7);
-  doc.setTextColor(MUTED);
-  doc.text(
-    `Vygenerováno ${new Date().toLocaleString("cs-CZ")} · dokument Pepa`,
-    14,
-    288
   );
 
   // ── Další stránky: text + grafy ──
@@ -297,9 +302,9 @@ export async function buildAgentReportPdfBuffer(
   doc.setFontSize(9);
   doc.text(closeWrapped, 16, y + 7);
 
-  doc.setFontSize(7);
-  doc.setTextColor(MUTED);
-  doc.text("Pepa · Back Office Operations", 14, 288);
+  for (let p = 1; p <= doc.getNumberOfPages(); p++) {
+    drawFooter(p);
+  }
 
   const out = doc.output("arraybuffer");
   return Buffer.from(out);
