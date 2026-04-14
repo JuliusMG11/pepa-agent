@@ -17,6 +17,19 @@ export interface ReportMetrics {
   topAgent: { name: string; deals: number } | null;
 }
 
+export interface TopProperty {
+  title: string;
+  district: string;
+  price: number;
+  agentName: string;
+}
+
+export interface PipelineStage {
+  status: string;
+  label: string;
+  count: number;
+}
+
 export interface ReportData {
   period: ReportPeriod;
   metrics: ReportMetrics;
@@ -26,4 +39,6 @@ export interface ReportData {
   propertiesByDistrict: { district: string; count: number; revenue: number }[];
   activitiesByType: { type: string; count: number }[];
   weeklyBreakdown: { week: string; leads: number; sold: number }[];
+  topProperties?: TopProperty[];
+  pipelineFunnel?: PipelineStage[];
 }
