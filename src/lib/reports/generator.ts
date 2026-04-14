@@ -115,6 +115,7 @@ export async function generateReport(
     supabase
       .from("leads")
       .select("status")
+      .not("status", "in", '("closed_won","closed_lost")')
       .is("deleted_at", null),
   ]);
 
@@ -199,8 +200,6 @@ export async function generateReport(
     contacted: "Kontaktován",
     viewing_scheduled: "Prohlídka",
     offer_made: "Nabídka",
-    closed_won: "Výhra",
-    closed_lost: "Ztráta",
   };
 
   const funnelMap: Record<string, number> = {};
@@ -209,13 +208,13 @@ export async function generateReport(
     funnelMap[st] = (funnelMap[st] ?? 0) + 1;
   }
 
-  const pipelineFunnel: PipelineStage[] = Object.entries(PIPELINE_STAGE_LABELS).map(
-    ([status, label]) => ({
+  const pipelineFunnel: PipelineStage[] = Object.entries(PIPELINE_STAGE_LABELS)
+    .filter(([status]) => !["closed_won", "closed_lost"].includes(status))
+    .map(([status, label]) => ({
       status,
       label,
       count: funnelMap[status] ?? 0,
-    })
-  );
+    }));
 
   // Leads by source (české popisky)
   const sourceMap: Record<string, number> = {};

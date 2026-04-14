@@ -263,6 +263,58 @@ export async function generateReportTool(
       .map(([week, { leads: wl, sold: ws }]) => ({ week, leads: wl, sold: ws }))
       .sort((a, b) => a.week.localeCompare(b.week));
 
+    // Top 5 sold properties by price in the period
+    const { data: topSoldRows } = await context.supabase
+      .from("properties")
+      .select("title, district, price, agent_id")
+      .eq("status", "sold")
+      .gte("updated_at", fromIso)
+      .lte("updated_at", toIso)
+      .is("deleted_at", null)
+      .order("price", { ascending: false })
+      .limit(5);
+
+    const topAgentIds = [...new Set(
+      (topSoldRows ?? []).map((p) => p.agent_id).filter((id): id is string => id != null)
+    )];
+    let profileMap: Record<string, string> = {};
+    if (topAgentIds.length > 0) {
+      const { data: agentProfiles } = await context.supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", topAgentIds);
+      profileMap = Object.fromEntries(
+        (agentProfiles ?? []).map((p) => [p.id, p.full_name])
+      );
+    }
+    const topProperties: TopProperty[] = (topSoldRows ?? []).map((p) => ({
+      title: p.title,
+      district: p.district,
+      price: p.price ?? 0,
+      agentName: p.agent_id ? (profileMap[p.agent_id] ?? "Neznámý") : "Neznámý",
+    }));
+
+    // Pipeline funnel — current snapshot of open leads by status
+    const PIPELINE_STAGE_LABELS: Record<string, string> = {
+      new: "Nový",
+      contacted: "Kontaktován",
+      viewing_scheduled: "Prohlídka",
+      offer_made: "Nabídka",
+    };
+
+    const { data: openLeads } = await context.supabase
+      .from("leads")
+      .select("status")
+      .not("status", "in", '("closed_won","closed_lost")')
+      .is("deleted_at", null);
+
+    const funnelMap: Record<string, number> = {};
+    for (const l of openLeads ?? []) {
+      funnelMap[l.status] = (funnelMap[l.status] ?? 0) + 1;
+    }
+    const pipelineFunnel: PipelineStage[] = Object.entries(PIPELINE_STAGE_LABELS)
+      .map(([status, label]) => ({ status, label, count: funnelMap[status] ?? 0 }));
+
     const reportData: ReportData = {
       period: {
         label,
@@ -288,6 +340,8 @@ export async function generateReportTool(
       activitiesByType,
       propertiesByDistrict,
       weeklyBreakdown,
+      topProperties,
+      pipelineFunnel,
     };
 
     return { success: true, data: reportData };
