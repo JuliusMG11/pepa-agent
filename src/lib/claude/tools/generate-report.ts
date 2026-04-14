@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import type { Result } from "@/types/app";
+import type { TopProperty, PipelineStage } from "@/types/reports";
 import {
   ACTIVITY_TYPE_LABELS_CS,
   LEAD_SOURCE_LABELS_CS,
@@ -39,8 +40,8 @@ export interface ReportData {
   activitiesByType?: { label: string; count: number }[];
   propertiesByDistrict?: { district: string; count: number; revenue: number }[];
   weeklyBreakdown?: { week: string; leads: number; sold: number }[];
-  topProperties?: import("@/types/reports").TopProperty[];
-  pipelineFunnel?: import("@/types/reports").PipelineStage[];
+  topProperties?: TopProperty[];
+  pipelineFunnel?: PipelineStage[];
 }
 
 function isoWeek(d: Date): string {
