@@ -290,7 +290,7 @@ export const toolDefinitions: Anthropic.Tool[] = [
   {
     name: "get_emails",
     description:
-      "Fetch the user's Gmail inbox messages. Use when asked about emails, received messages, or specific senders. Returns subject, sender, snippet and body excerpt for each message.",
+      "Fetch the user's Gmail inbox messages. ALWAYS use this tool when the user asks about emails, inbox, unread messages, or received mail — in any language (Czech, Slovak, English). Trigger phrases include: 'zobraz e-maily', 'vypis neprecitane spravy', 'co mám v inboxu', 'prijaté správy', 'show emails', 'check inbox'. Returns subject, sender, snippet and body excerpt for each message.",
     input_schema: {
       type: "object" as const,
       properties: {
