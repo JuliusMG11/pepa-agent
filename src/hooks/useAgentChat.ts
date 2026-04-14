@@ -6,6 +6,7 @@ import type { ChartPayload } from "@/lib/claude/tools/render-chart";
 import type { EmailDraft } from "@/lib/claude/tools/draft-email";
 import type { PresentationResult } from "@/lib/claude/tools/create-presentation";
 import type { ReportData as AgentReportData } from "@/lib/claude/tools/generate-report";
+import type { EmailListResult } from "@/lib/claude/tools/get-emails";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,8 @@ export type RichBlock =
   | { type: "chart"; payload: ChartPayload }
   | { type: "email"; payload: EmailDraft }
   | { type: "download"; payload: PresentationResult }
-  | { type: "report"; payload: AgentReportData };
+  | { type: "report"; payload: AgentReportData }
+  | { type: "email_list"; payload: EmailListResult };
 
 export interface ChatMessage {
   id: string;
@@ -39,10 +41,11 @@ interface SseChart { type: "chart"; payload: ChartPayload }
 interface SseEmail { type: "email"; payload: EmailDraft }
 interface SseDownload { type: "download"; payload: PresentationResult }
 interface SseReport { type: "report"; payload: AgentReportData }
+interface SseEmailList { type: "email_list"; payload: EmailListResult }
 interface SseDone { type: "done" }
 interface SseError { type: "error"; message: string }
 
-type SseEvent = SseText | SseChart | SseEmail | SseDownload | SseReport | SseDone | SseError;
+type SseEvent = SseText | SseChart | SseEmail | SseDownload | SseReport | SseEmailList | SseDone | SseError;
 
 function newUuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -308,6 +311,12 @@ export function useAgentChat() {
                 updateMessage(assistantMessageId, (msg) => ({
                   ...msg,
                   richBlocks: [...(msg.richBlocks ?? []), { type: "report" as const, payload: (event as SseReport).payload }],
+                }));
+                break;
+              case "email_list":
+                updateMessage(assistantMessageId, (msg) => ({
+                  ...msg,
+                  richBlocks: [...(msg.richBlocks ?? []), { type: "email_list" as const, payload: (event as SseEmailList).payload }],
                 }));
                 break;
               case "done":
