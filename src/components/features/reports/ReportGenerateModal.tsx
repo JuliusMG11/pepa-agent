@@ -6,7 +6,7 @@ import { CheckCircle2, FileText, Sparkles, XCircle } from "lucide-react";
 const STATUS_LINES = [
   "Sbírám data z databáze…",
   "Skládám datový report (PDF)…",
-  "Generuji prezentaci (PDF)…",
+  "Generuji prezentaci (PPTX)…",
   "Nahrávám oba soubory…",
 ];
 

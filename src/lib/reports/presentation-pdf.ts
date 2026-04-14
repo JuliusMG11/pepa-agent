@@ -209,9 +209,11 @@ export async function buildPresentationPdfBuffer(
   applyPdfFont(doc, fontFam, false);
   doc.setTextColor(LIGHT);
   doc.setFontSize(8.5);
-  doc.setLetterSpacing(1.5);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (doc as any).setLetterSpacing?.(1.5);
   doc.text("PEPA · BACK OFFICE", MARG, 30);
-  doc.setLetterSpacing(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (doc as any).setLetterSpacing?.(0);
 
   doc.setTextColor(WHITE);
   doc.setFontSize(34);
@@ -263,7 +265,7 @@ export async function buildPresentationPdfBuffer(
   drawLightSlide(doc);
   const kpiTop = drawHeader(doc, fontFam, "Klíčové metriky", report.period.label);
 
-  const revenue = metrics.revenueEstimate ?? (metrics as Record<string, number>)["totalRevenue"] ?? 0;
+  const revenue = metrics.totalRevenue ?? 0;
   const kpis = [
     { value: String(metrics.newLeads),    label: "Nové leady",       sub: "v období",           color: BRAND  },
     { value: String(metrics.closedWon),   label: "Uzavřeno (výhra)", sub: "uzavřených obchodů", color: TEAL   },
@@ -357,11 +359,11 @@ export async function buildPresentationPdfBuffer(
   const actTop = drawHeader(
     doc, fontFam,
     "Aktivity v období",
-    `Celkem: ${metrics.totalActivities ?? 0} aktivit zaznamenáno v systému`
+    `Celkem: ${(report.activitiesByType ?? []).reduce((a, b) => a + b.count, 0)} aktivit zaznamenáno v systému`
   );
 
   const actRows = (report.activitiesByType ?? []).map((r) => ({
-    label: r.label ?? r.type,
+    label: r.type,
     value: r.count,
   }));
 

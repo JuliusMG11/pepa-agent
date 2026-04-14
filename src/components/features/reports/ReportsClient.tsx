@@ -47,7 +47,7 @@ interface GeneratedReport {
   report: Report;
   reportData: ReportData;
   pdfUrl: string | null;
-  presentationPdfUrl: string | null;
+  presentationPptxUrl: string | null;
 }
 
 interface Props {
@@ -331,16 +331,15 @@ export function ReportsClient({ initialReports }: Props) {
                 Report (PDF)
               </a>
             )}
-            {lastGenerated.presentationPdfUrl && (
+            {lastGenerated.presentationPptxUrl && (
               <a
-                href={lastGenerated.presentationPdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={lastGenerated.presentationPptxUrl}
+                download
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
                 style={{ backgroundColor: "rgba(13,148,136,0.12)", color: "#0d9488" }}
               >
                 <Presentation size={13} />
-                Prezentace (PDF)
+                Prezentace (PPTX)
               </a>
             )}
           </div>

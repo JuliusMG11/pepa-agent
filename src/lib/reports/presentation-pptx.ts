@@ -13,6 +13,7 @@
 
 import PptxGenJS from "pptxgenjs";
 import type { ReportData } from "@/types/reports";
+import { ACTIVITY_TYPE_LABELS_CS, LEAD_SOURCE_LABELS_CS } from "@/lib/reports/czech-labels";
 
 // ── Palette (no # — pptxgenjs requirement) ────────────────────────────────────
 const C = {
@@ -186,7 +187,7 @@ export async function buildReportPptxBuffer(
       { value: String(metrics.newLeads),       label: "Nové leady",      sub: "v období",           color: C.brand  },
       { value: String(metrics.closedWon),       label: "Uzavřeno (výhra)", sub: "uzavřených obchodů", color: C.teal   },
       { value: conv,                            label: "Konverze",         sub: "won / uzavřené",     color: C.green  },
-      { value: formatCzk(metrics.revenueEstimate ?? metrics.totalRevenue ?? 0),
+      { value: formatCzk(metrics.totalRevenue ?? 0),
                                                 label: "Obrat",            sub: "prodáno v období",   color: C.orange },
     ];
 
@@ -239,7 +240,7 @@ export async function buildReportPptxBuffer(
       s.addChart(prs.ChartType.bar, [
         {
           name: "Počet leadů",
-          labels: src.map((r) => r.source ?? r.label ?? "—"),
+          labels: src.map((r) => LEAD_SOURCE_LABELS_CS[r.source] ?? r.source ?? "—"),
           values: src.map((r) => r.count),
         },
       ], {
@@ -248,17 +249,13 @@ export async function buildReportPptxBuffer(
         barGrouping: "clustered",
         chartColors: [C.brand],
         showLegend: false,
-        showGridLineMajorX: false,
-        showGridLineMajorY: false,
         showValue: true,
         dataLabelFontSize: 11,
         dataLabelColor: C.text,
-        axisLineColor: "e2dff5",
         valAxisLineColor: "e2dff5",
         catAxisLineColor: "e2dff5",
         valAxisLabelFontSize: 11,
         catAxisLabelFontSize: 12,
-        valAxisNumFmt: "0",
         chartArea: { fill: { color: C.sheet } },
         plotArea: { fill: { color: C.sheet } },
       });
@@ -366,15 +363,23 @@ export async function buildReportPptxBuffer(
   {
     const s = prs.addSlide();
     s.background = { color: C.sheet };
-    addHeader(s, prs, "Aktivity v období", `Celkem: ${metrics.totalActivities ?? 0} aktivit`);
+    const totalActivities = (report.activitiesByType ?? []).reduce((a, b) => a + b.count, 0);
+    addHeader(s, prs, "Aktivity v období", `Celkem: ${totalActivities} aktivit`);
 
-    const actData = (report.activitiesByType ?? []).slice(0, 4);
+    const rawActData = (report.activitiesByType ?? []).slice(0, 4);
     const cardColors = [C.brand, C.teal, C.green, C.orange];
 
     const positions: [number, number][] = [
       [0.48, 1.72], [7.0, 1.72],
       [0.48, 4.45], [7.0, 4.45],
     ];
+
+    // Normalize to typed entries with Czech label
+    const actData: { type: string; label: string; count: number }[] = rawActData.map((a) => ({
+      type: a.type,
+      label: ACTIVITY_TYPE_LABELS_CS[a.type] ?? a.type,
+      count: a.count,
+    }));
 
     // Fill missing slots
     while (actData.length < 4) {
@@ -406,7 +411,7 @@ export async function buildReportPptxBuffer(
         fontSize: 56, fontFace: GEORGIA, color: col, bold: true, align: "center",
       });
       // Type label
-      s.addText(act.label ?? act.type, {
+      s.addText(act.label, {
         x: x + 0.25, y: y + 1.55, w: cw - 0.5, h: 0.55,
         fontSize: 14, fontFace: CALIBRI, color: C.text, bold: true, align: "center",
       });

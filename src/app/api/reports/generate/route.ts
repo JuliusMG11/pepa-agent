@@ -6,7 +6,7 @@ import {
   buildCustomPeriod,
 } from "@/lib/reports/generator";
 import { buildDashboardReportPdfBuffer } from "@/lib/reports/dashboard-report-pdf";
-import { buildPresentationPdfBuffer } from "@/lib/reports/presentation-pdf";
+import { buildReportPptxBuffer } from "@/lib/reports/presentation-pptx";
 import { generateReportPdfNarrative } from "@/lib/reports/report-ai-narrative";
 import type { ReportData, ReportPeriod } from "@/types/reports";
 
@@ -70,19 +70,19 @@ export async function POST(request: Request): Promise<Response> {
     companyLine: "Pepa · Back Office",
   });
 
-  // Build both PDFs in parallel
-  const [pdfBuffer, presentationBuffer] = await Promise.all([
+  // Build PDF report + PPTX presentation in parallel
+  const [pdfBuffer, pptxBuffer] = await Promise.all([
     buildDashboardReportPdfBuffer(title, reportData, {
       authorName,
       companyLine: "Pepa · Back Office",
       narrative,
     }),
-    buildPresentationPdfBuffer(title, reportData, narrative?.closingLine),
+    buildReportPptxBuffer(title, reportData, narrative?.recommendations?.[0]),
   ]);
 
   const reportId = crypto.randomUUID();
   const storagePath = `${user.id}/${reportId}.pdf`;
-  const presentationPath = `${user.id}/${reportId}-prezentace.pdf`;
+  const presentationPath = `${user.id}/${reportId}-prezentace.pptx`;
 
   // Upload both in parallel
   const [uploadResult, presentationUploadResult] = await Promise.all([
@@ -90,8 +90,8 @@ export async function POST(request: Request): Promise<Response> {
       contentType: "application/pdf",
       upsert: false,
     }),
-    supabase.storage.from("reports").upload(presentationPath, presentationBuffer, {
-      contentType: "application/pdf",
+    supabase.storage.from("reports").upload(presentationPath, pptxBuffer, {
+      contentType: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       upsert: false,
     }),
   ]);
@@ -132,6 +132,6 @@ export async function POST(request: Request): Promise<Response> {
     report: reportRow,
     reportData,
     pdfUrl: urlData?.data?.signedUrl ?? null,
-    presentationPdfUrl: presentationUrlResult?.data?.signedUrl ?? null,
+    presentationPptxUrl: presentationUrlResult?.data?.signedUrl ?? null,
   });
 }
