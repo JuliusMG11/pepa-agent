@@ -27,11 +27,29 @@ export async function getEmailsTool(
     .eq("id", userId)
     .single();
 
-  if (!profile?.google_access_token || !profile?.google_refresh_token) {
+  if (!profile?.google_access_token && !profile?.google_refresh_token) {
     return {
       success: false,
       error: new Error(
-        "Gmail není propojen. Propoj Google účet v Nastavení → Integrace a ujisti se, že máš povolený Gmail scope."
+        "Google účet není propojen vůbec. Jdi do Nastavení → Propojit s Google."
+      ),
+    };
+  }
+
+  if (!profile?.google_refresh_token) {
+    return {
+      success: false,
+      error: new Error(
+        "Chybí refresh token — znovu propoj Google účet v Nastavení (klikni Znovu propojit a potvrď všechna oprávnění)."
+      ),
+    };
+  }
+
+  if (!profile?.google_access_token) {
+    return {
+      success: false,
+      error: new Error(
+        "Chybí access token — znovu propoj Google účet v Nastavení."
       ),
     };
   }

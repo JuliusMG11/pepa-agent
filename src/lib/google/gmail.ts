@@ -32,8 +32,13 @@ async function gmailFetch(
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 401 || res.status === 403) {
+    let detail = "";
+    try {
+      const body = await res.clone().json() as { error?: { message?: string } };
+      detail = body?.error?.message ? ` (${body.error.message})` : "";
+    } catch { /* ignore */ }
     throw new Error(
-      "Gmail: přístup zamítnut. Znovu propoj Google účet v Nastavení → Integrace (přidej Gmail scope)."
+      `Gmail HTTP ${res.status}${detail}: nemáš povolený gmail.readonly scope nebo Gmail API není zapnuté v Google Cloud Console. Znovu propoj Google účet v Nastavení.`
     );
   }
   return res;
