@@ -1,46 +1,62 @@
 /**
  * Noto Sans pro češtinu v jsPDF (standardní Helvetica neumí diakritiku).
- * Načte se z CDN při prvním generování; při selhání zůstane Helvetica.
+ * Načítáme ze souborového systému (public/fonts/) — spolehlivější než CDN.
  */
 
 import type { jsPDF } from "jspdf";
+import { join } from "path";
+import { readFileSync } from "fs";
 
-const FONT_URL =
-  "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.19/files/noto-sans-latin-ext-400-normal.ttf";
+let cachedB64: string | null | undefined;
 
-// Cache invalidated when FONT_URL changes — bump this string to force reload
-const FONT_CACHE_KEY = "NotoSans-LatinExt-v1";
-let cachedVfsName: string | null | undefined;
+function getB64(): string | null {
+  if (cachedB64 === null) return null;
+  if (cachedB64) return cachedB64;
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]!);
+  try {
+    const fontPath = join(process.cwd(), "public", "fonts", "NotoSans-LatinExt.ttf");
+    const buf = readFileSync(fontPath);
+    cachedB64 = buf.toString("base64");
+    return cachedB64;
+  } catch {
+    try {
+      // Fallback: CDN fetch (synchronous base64 is not possible, caller must await)
+      cachedB64 = null;
+      return null;
+    } catch {
+      cachedB64 = null;
+      return null;
+    }
   }
-  if (typeof btoa !== "undefined") return btoa(binary);
-  return Buffer.from(buffer).toString("base64");
 }
 
 /** Vrátí název fontu pro setFont, nebo null = použít helvetica. */
 export async function registerCzechFont(doc: jsPDF): Promise<string | null> {
-  if (cachedVfsName === null) return null;
-  if (cachedVfsName) return cachedVfsName;
-
-  try {
-    const res = await fetch(FONT_URL, { signal: AbortSignal.timeout(15_000) });
-    if (!res.ok) {
-      cachedVfsName = null;
-      return null;
-    }
-    const b64 = arrayBufferToBase64(await res.arrayBuffer());
+  // Try filesystem first (reliable in Node.js / Vercel)
+  const b64 = getB64();
+  if (b64) {
     const vfs = "NotoSans-Regular.ttf";
     doc.addFileToVFS(vfs, b64);
     doc.addFont(vfs, "NotoSans", "normal");
-    cachedVfsName = "NotoSans";
+    return "NotoSans";
+  }
+
+  // Fallback: CDN
+  try {
+    const FONT_URL =
+      "https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf";
+    const res = await fetch(FONT_URL, { signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) return null;
+    const buf = await res.arrayBuffer();
+    let binary = "";
+    const bytes = new Uint8Array(buf);
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]!);
+    const b64cdn = typeof btoa !== "undefined" ? btoa(binary) : Buffer.from(buf).toString("base64");
+    const vfs = "NotoSans-Regular.ttf";
+    doc.addFileToVFS(vfs, b64cdn);
+    doc.addFont(vfs, "NotoSans", "normal");
     return "NotoSans";
   } catch {
-    cachedVfsName = null;
     return null;
   }
 }

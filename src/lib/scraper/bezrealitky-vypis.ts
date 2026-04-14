@@ -107,8 +107,6 @@ export async function scrapeBezrealitkyVypis(options: {
       if (!advert || typeof advert.uri !== "string") continue;
 
       const addr = dynamicKey(advert, "address(");
-      const addrNorm = addr.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-      if (!matchesDistrict(district, addrNorm)) continue;
 
       const price = typeof advert.price === "number" ? advert.price : 0;
       if (priceMax != null && Number.isFinite(priceMax) && price > priceMax) {

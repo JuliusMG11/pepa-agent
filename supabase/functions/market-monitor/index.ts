@@ -318,8 +318,6 @@ async function scrapeBezrealitky(district: string, filters: Record<string, unkno
       if (!advert || typeof advert.uri !== "string") continue;
 
       const addr = bezDynamicKey(advert, "address(");
-      const addrNorm = addr.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-      if (!bezMatchesDistrict(district, addrNorm)) continue;
 
       const price = typeof advert.price === "number" ? advert.price : 0;
       if (Number.isFinite(priceMax as number) && priceMax != null && price > priceMax) continue;
