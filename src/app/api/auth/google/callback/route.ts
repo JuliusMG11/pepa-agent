@@ -71,13 +71,18 @@ export async function GET(request: Request): Promise<Response> {
 
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
 
-  // Save tokens to profile
+  // Save tokens to profile — only overwrite refresh_token if Google sent a new one
+  // (Google omits refresh_token on re-auth if the existing one is still valid,
+  //  writing null would destroy the working Calendar token)
   const supabase = await createClient();
+
   const { error } = await supabase
     .from("profiles")
     .update({
       google_access_token: tokens.access_token,
-      google_refresh_token: tokens.refresh_token ?? null,
+      // Only overwrite refresh_token when Google sends a new one —
+      // omitting it preserves the existing token (re-auth may not return one)
+      ...(tokens.refresh_token ? { google_refresh_token: tokens.refresh_token } : {}),
       google_token_expiry: expiresAt,
       google_email: googleEmail,
     })
