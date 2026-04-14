@@ -98,8 +98,8 @@ export async function scrapeSreality(options: ScraperOptions): Promise<RawListin
 
       if (!res.ok) continue;
 
-      const data = await res.json() as { estates?: SrealityEstate[] };
-      const estates = data?.estates ?? [];
+      const data = await res.json() as { _embedded?: { estates?: SrealityEstate[] } };
+      const estates = data?._embedded?.estates ?? [];
 
       const mapped = await Promise.all(
         estates.map(async (estate) => {

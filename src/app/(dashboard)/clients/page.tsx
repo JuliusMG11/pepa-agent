@@ -29,11 +29,12 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
   const params = await searchParams;
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const source = ((params.source as LeadSource) || "all") as LeadSource | "all";
   const hasFilters = Boolean(params.search?.trim()) || source !== "all";
 
-  const [{ data: clients, total }, countRes] = await Promise.all([
+  const [{ data: clients, total }, countRes, availPropsRes] = await Promise.all([
     getClients(supabase, {
       search: params.search,
       source,
@@ -41,7 +42,17 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
       limit: 10,
     }),
     supabase.from("clients").select("id", { count: "exact", head: true }).is("deleted_at", null),
+    user
+      ? supabase
+          .from("v_property_summary")
+          .select("id, title, address")
+          .eq("agent_id", user.id)
+          .is("client_id", null)
+          .limit(100)
+      : Promise.resolve({ data: [] }),
   ]);
+
+  const availableProperties = (availPropsRes.data ?? []) as { id: string; title: string; address: string }[];
 
   const totalClientsInDb = countRes.count ?? 0;
 
@@ -81,7 +92,7 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
         </Suspense>
 
         <Suspense>
-          <ClientListActions />
+          <ClientListActions availableProperties={availableProperties} />
         </Suspense>
 
         {/* Table */}

@@ -8,11 +8,19 @@ import { deleteClient } from "@/app/(dashboard)/clients/actions";
 import { toast } from "@/components/ui/toaster";
 import type { ClientRow } from "@/lib/data/clients";
 
-interface ClientDetailActionsProps {
-  client: ClientRow;
+interface PropertyOpt {
+  id: string;
+  title: string;
+  address: string;
 }
 
-export function ClientDetailActions({ client }: ClientDetailActionsProps) {
+interface ClientDetailActionsProps {
+  client: ClientRow;
+  availableProperties?: PropertyOpt[];
+  linkedPropertyId?: string | null;
+}
+
+export function ClientDetailActions({ client, availableProperties, linkedPropertyId }: ClientDetailActionsProps) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -54,7 +62,13 @@ export function ClientDetailActions({ client }: ClientDetailActionsProps) {
           Smazat
         </button>
       </div>
-      <ClientDialog open={editOpen} onClose={() => setEditOpen(false)} client={client} />
+      <ClientDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        client={client}
+        availableProperties={availableProperties}
+        linkedPropertyId={linkedPropertyId}
+      />
     </>
   );
 }

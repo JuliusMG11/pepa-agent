@@ -23,6 +23,7 @@ const ClientUpsertSchema = z.object({
     .optional()
     .nullable(),
   notes: z.string().optional(),
+  property_id: z.string().uuid().optional().nullable(),
 });
 
 export type UpsertClientResult =
@@ -40,6 +41,7 @@ export async function upsertClient(formData: FormData): Promise<UpsertClientResu
     phone: nullIfEmpty("phone"),
     source: nullIfEmpty("source"),
     notes: nullIfEmpty("notes"),
+    property_id: nullIfEmpty("property_id"),
   });
 
   if (!parsed.success) {
@@ -55,9 +57,18 @@ export async function upsertClient(formData: FormData): Promise<UpsertClientResu
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Nejste přihlášeni." };
 
-  const { id, ...fields } = parsed.data;
+  const { id, property_id, ...fields } = parsed.data;
   const email =
     fields.email === "" || fields.email === undefined ? null : fields.email;
+
+  async function linkProperty(clientId: string, propId: string | null | undefined) {
+    if (!propId) return;
+    await supabase
+      .from("properties")
+      .update({ client_id: clientId })
+      .eq("id", propId);
+    revalidatePath(`/properties/${propId}`);
+  }
 
   if (id) {
     const { error } = await supabase
@@ -73,6 +84,7 @@ export async function upsertClient(formData: FormData): Promise<UpsertClientResu
       .eq("id", id);
 
     if (error) return { success: false, error: error.message };
+    await linkProperty(id, property_id);
     revalidatePath("/clients");
     revalidatePath(`/clients/${id}`);
     return { success: true, id };
@@ -92,6 +104,7 @@ export async function upsertClient(formData: FormData): Promise<UpsertClientResu
     .single();
 
   if (error || !data) return { success: false, error: error?.message ?? "Chyba" };
+  await linkProperty(data.id, property_id);
   revalidatePath("/clients");
   return { success: true, id: data.id };
 }

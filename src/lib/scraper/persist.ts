@@ -33,6 +33,7 @@ export async function upsertListings(
           is_new: false,
           price: listing.price,
           title: listing.title,
+          url: listing.url,
         })
         .eq("id", existing.id);
       updated_count++;

@@ -34,13 +34,21 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
 };
 
+interface PropertyOpt {
+  id: string;
+  title: string;
+  address: string;
+}
+
 interface ClientDialogProps {
   open: boolean;
   onClose: () => void;
   client?: ClientRow | null;
+  availableProperties?: PropertyOpt[];
+  linkedPropertyId?: string | null;
 }
 
-export function ClientDialog({ open, onClose, client }: ClientDialogProps) {
+export function ClientDialog({ open, onClose, client, availableProperties = [], linkedPropertyId }: ClientDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +146,29 @@ export function ClientDialog({ open, onClose, client }: ClientDialogProps) {
             </label>
             <textarea name="notes" rows={3} defaultValue={client?.notes ?? ""} style={{ ...inputStyle, resize: "vertical" }} />
           </div>
+
+          {availableProperties.length > 0 && (
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-text-muted)" }}>
+                Propojená nemovitost (volitelné)
+              </label>
+              <select
+                name="property_id"
+                defaultValue={linkedPropertyId ?? ""}
+                style={inputStyle}
+              >
+                <option value="">Žádná — nepropojovat</option>
+                {availableProperties.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title} — {p.address}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] mt-1" style={{ color: "var(--color-text-muted)" }}>
+                Přiřadí nemovitost tomuto klientovi. Existující propojení nemovitosti nejsou odstraněna.
+              </p>
+            </div>
+          )}
 
           {error && (
             <p className="text-xs font-medium" style={{ color: "#991b1b" }}>

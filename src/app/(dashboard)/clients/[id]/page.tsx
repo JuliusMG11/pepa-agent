@@ -212,7 +212,11 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
                 <MessageSquare size={13} strokeWidth={1.5} />
                 Ask Pepa
               </Link>
-              <ClientDetailActions client={client} />
+              <ClientDetailActions
+                client={client}
+                availableProperties={[...propertyLinks.linked, ...propertyLinks.unassigned]}
+                linkedPropertyId={propertyLinks.linked[0]?.id ?? null}
+              />
             </div>
           </div>
 

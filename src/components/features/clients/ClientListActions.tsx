@@ -4,7 +4,17 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ClientDialog } from "./ClientDialog";
 
-export function ClientListActions() {
+interface PropertyOpt {
+  id: string;
+  title: string;
+  address: string;
+}
+
+interface ClientListActionsProps {
+  availableProperties?: PropertyOpt[];
+}
+
+export function ClientListActions({ availableProperties }: ClientListActionsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -25,5 +35,5 @@ export function ClientListActions() {
     router.replace(qs ? `/clients?${qs}` : "/clients");
   }
 
-  return <ClientDialog open={open} onClose={handleClose} />;
+  return <ClientDialog open={open} onClose={handleClose} availableProperties={availableProperties} />;
 }

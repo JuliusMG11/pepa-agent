@@ -6,8 +6,10 @@
 import type { jsPDF } from "jspdf";
 
 const FONT_URL =
-  "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.19/files/noto-sans-latin-400-normal.ttf";
+  "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.0.19/files/noto-sans-latin-ext-400-normal.ttf";
 
+// Cache invalidated when FONT_URL changes — bump this string to force reload
+const FONT_CACHE_KEY = "NotoSans-LatinExt-v1";
 let cachedVfsName: string | null | undefined;
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
