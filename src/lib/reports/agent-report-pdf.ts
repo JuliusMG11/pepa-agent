@@ -354,11 +354,11 @@ export async function buildAgentReportPdfBuffer(
   doc.text(closeWrapped, 16, y + 7);
 
   if ((report.topProperties ?? []).length > 0) {
-    iy2 += 8;
-    iy2 = ensureSpace(doc, iy2, 20 + (report.topProperties!.length * 10) + 10);
-    iy2 = sectionHeader(doc, fontFam, iy2, "Top 5 prodaných nemovitostí", "Seřazeno podle ceny — v daném období");
-    iy2 += 4;
-    iy2 = drawPropertyTable(doc, fontFam, iy2, report.topProperties!);
+    y += 8;
+    y = ensureSpace(doc, y, 20 + (report.topProperties!.length * 10) + 10);
+    y = sectionHeader(doc, fontFam, y, "Top 5 prodaných nemovitostí", "Seřazeno podle ceny — v daném období");
+    y += 4;
+    y = drawPropertyTable(doc, fontFam, y, report.topProperties!);
   }
 
   for (let p = 1; p <= doc.getNumberOfPages(); p++) {
