@@ -58,6 +58,7 @@ export async function generateReport(
     activitiesResult,
     allLeadsForConv,
     topSoldResult,
+    allOpenLeadsResult,
   ] = await Promise.all([
     // Leads created in period
     supabase
@@ -110,6 +111,11 @@ export async function generateReport(
       .is("deleted_at", null)
       .order("price", { ascending: false })
       .limit(5),
+    // Pipeline snapshot — current open leads by status (no period dependency)
+    supabase
+      .from("leads")
+      .select("status")
+      .is("deleted_at", null),
   ]);
 
   const leads = leadsResult.data ?? [];
@@ -163,25 +169,29 @@ export async function generateReport(
     if (profile) topAgent = { name: profile.full_name, deals: topAgentDeals };
   }
 
-  // Top properties — resolve agent names
-  const topProperties: TopProperty[] = [];
-  for (const prop of topSoldResult.data ?? []) {
-    let agentName = "Neznámý";
-    if (prop.agent_id) {
-      const { data: agentProfile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", prop.agent_id)
-        .single();
-      if (agentProfile) agentName = agentProfile.full_name;
-    }
-    topProperties.push({
-      title: prop.title,
-      district: prop.district,
-      price: prop.price ?? 0,
-      agentName,
-    });
+  // Top properties — resolve agent names with a single batched query
+  const topSoldRows = topSoldResult.data ?? [];
+  const agentIds = [...new Set(
+    topSoldRows.map((p) => p.agent_id).filter((id): id is string => id != null)
+  )];
+
+  let profileMap: Record<string, string> = {};
+  if (agentIds.length > 0) {
+    const { data: agentProfiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", agentIds);
+    profileMap = Object.fromEntries(
+      (agentProfiles ?? []).map((p) => [p.id, p.full_name])
+    );
   }
+
+  const topProperties: TopProperty[] = topSoldRows.map((p) => ({
+    title: p.title,
+    district: p.district,
+    price: p.price ?? 0,
+    agentName: p.agent_id ? (profileMap[p.agent_id] ?? "Neznámý") : "Neznámý",
+  }));
 
   // Pipeline funnel — current snapshot of open leads by status
   const PIPELINE_STAGE_LABELS: Record<string, string> = {
@@ -193,13 +203,8 @@ export async function generateReport(
     closed_lost: "Ztráta",
   };
 
-  const { data: allOpenLeads } = await supabase
-    .from("leads")
-    .select("status")
-    .is("deleted_at", null);
-
   const funnelMap: Record<string, number> = {};
-  for (const lead of allOpenLeads ?? []) {
+  for (const lead of allOpenLeadsResult.data ?? []) {
     const st = lead.status;
     funnelMap[st] = (funnelMap[st] ?? 0) + 1;
   }
