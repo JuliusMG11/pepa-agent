@@ -234,7 +234,7 @@ export function SettingsClient({
             )}
             {!isGoogleConnected && (
               <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
-                Propojte svůj kalendář, aby Pepa mohl navrhovat termíny prohlídek.
+                Propojte Google účet — Pepa získá přístup ke Kalendáři i Gmailu.
               </p>
             )}
           </div>
@@ -248,6 +248,13 @@ export function SettingsClient({
                 <CheckCircle2 size={12} />
                 Aktivní
               </span>
+              <a
+                href="/api/auth/google"
+                className="text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors"
+                style={{ borderColor: "rgba(70,72,212,0.4)", color: "var(--color-brand)" }}
+              >
+                Znovu propojit
+              </a>
               <button
                 onClick={handleDisconnectGoogle}
                 className="text-xs px-3 py-1.5 rounded-lg border font-medium transition-colors"

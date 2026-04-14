@@ -86,12 +86,13 @@ export async function listGmailMessages(params: {
 }): Promise<GmailMessage[]> {
   const { accessToken, refreshToken, tokenExpiresAt } = params;
   const max = Math.min(params.maxResults ?? 10, 20);
-  const labels = (params.labelIds ?? ["INBOX"]).join(",");
+  const labelIds = params.labelIds ?? ["INBOX"];
   const q = params.query ?? "";
 
   const listUrl = new URL("https://gmail.googleapis.com/gmail/v1/users/me/messages");
   listUrl.searchParams.set("maxResults", String(max));
-  listUrl.searchParams.set("labelIds", labels);
+  // Gmail API requires each labelId as a separate query param
+  labelIds.forEach((label) => listUrl.searchParams.append("labelIds", label));
   if (q) listUrl.searchParams.set("q", q);
 
   const listRes = await gmailFetch(accessToken, refreshToken, tokenExpiresAt, listUrl.toString());
