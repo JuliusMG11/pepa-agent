@@ -4,36 +4,33 @@
  */
 
 import type { jsPDF } from "jspdf";
-import { join } from "path";
-import { readFileSync } from "fs";
 
 let cachedB64: string | null | undefined;
 
-function getB64(): string | null {
+async function getB64(): Promise<string | null> {
   if (cachedB64 === null) return null;
   if (cachedB64) return cachedB64;
 
   try {
+    // Dynamic imports so Turbopack never bundles Node.js built-ins into client chunks
+    const [{ readFileSync }, { join }] = await Promise.all([
+      import("fs"),
+      import("path"),
+    ]);
     const fontPath = join(process.cwd(), "public", "fonts", "NotoSans-LatinExt.ttf");
     const buf = readFileSync(fontPath);
     cachedB64 = buf.toString("base64");
     return cachedB64;
   } catch {
-    try {
-      // Fallback: CDN fetch (synchronous base64 is not possible, caller must await)
-      cachedB64 = null;
-      return null;
-    } catch {
-      cachedB64 = null;
-      return null;
-    }
+    cachedB64 = null;
+    return null;
   }
 }
 
 /** Vrátí název fontu pro setFont, nebo null = použít helvetica. */
 export async function registerCzechFont(doc: jsPDF): Promise<string | null> {
   // Try filesystem first (reliable in Node.js / Vercel)
-  const b64 = getB64();
+  const b64 = await getB64();
   if (b64) {
     const vfs = "NotoSans-Regular.ttf";
     doc.addFileToVFS(vfs, b64);
