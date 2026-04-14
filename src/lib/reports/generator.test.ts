@@ -65,6 +65,9 @@ function makeEmptySupabase() {
     b.eq = chain;
     b.in = chain;
     b.is = chain;
+    b.not = chain;
+    b.order = chain;
+    b.limit = chain;
     b.then = (resolve: (v: unknown) => unknown) => Promise.resolve(resolve(result));
     return b;
   }
@@ -126,5 +129,62 @@ describe("generateReport", () => {
     const report = await generateReport(supabase, period);
 
     expect(report.metrics.conversionRate).toBe(0);
+  });
+});
+
+describe("generateReport — new fields (topProperties, pipelineFunnel)", () => {
+  it("returns empty topProperties array when no sold properties", async () => {
+    const supabase = makeEmptySupabase();
+    const period = buildCustomPeriod(
+      new Date("2025-01-01T00:00:00Z"),
+      new Date("2025-01-07T23:59:59Z")
+    );
+    const report = await generateReport(supabase, period);
+    expect(report.topProperties).toEqual([]);
+  });
+
+  it("returns pipelineFunnel with exactly 4 open stages", async () => {
+    const supabase = makeEmptySupabase();
+    const period = buildCustomPeriod(
+      new Date("2025-01-01T00:00:00Z"),
+      new Date("2025-01-07T23:59:59Z")
+    );
+    const report = await generateReport(supabase, period);
+    expect(report.pipelineFunnel).toBeDefined();
+    // 4 open stages: new, contacted, viewing_scheduled, offer_made
+    expect(report.pipelineFunnel).toHaveLength(4);
+    const statuses = report.pipelineFunnel!.map((s) => s.status);
+    expect(statuses).toContain("new");
+    expect(statuses).toContain("contacted");
+    expect(statuses).toContain("viewing_scheduled");
+    expect(statuses).toContain("offer_made");
+    // closed stages must NOT be in the funnel
+    expect(statuses).not.toContain("closed_won");
+    expect(statuses).not.toContain("closed_lost");
+  });
+
+  it("pipelineFunnel stages all have count 0 when no leads", async () => {
+    const supabase = makeEmptySupabase();
+    const period = buildCustomPeriod(
+      new Date("2025-01-01T00:00:00Z"),
+      new Date("2025-01-07T23:59:59Z")
+    );
+    const report = await generateReport(supabase, period);
+    report.pipelineFunnel!.forEach((stage) => {
+      expect(stage.count).toBe(0);
+    });
+  });
+
+  it("pipelineFunnel stages each have a Czech label", async () => {
+    const supabase = makeEmptySupabase();
+    const period = buildCustomPeriod(
+      new Date("2025-01-01T00:00:00Z"),
+      new Date("2025-01-07T23:59:59Z")
+    );
+    const report = await generateReport(supabase, period);
+    const czechLabels = ["Nový", "Kontaktován", "Prohlídka", "Nabídka"];
+    report.pipelineFunnel!.forEach((stage) => {
+      expect(czechLabels).toContain(stage.label);
+    });
   });
 });
