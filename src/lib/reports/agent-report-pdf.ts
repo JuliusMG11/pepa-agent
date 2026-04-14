@@ -59,6 +59,56 @@ function sectionHeader(
   return y + 14;
 }
 
+function drawPropertyTable(
+  doc: PdfDoc,
+  fontFam: string | null,
+  y: number,
+  rows: { title: string; district: string; price: number; agentName: string }[]
+): number {
+  const cols = [86, 38, 44, 38]; // column widths: title, district, price, agent
+  const headers = ["Nemovitost", "Čtvrť", "Cena", "Agent"];
+  const rowH = 10;
+  const startX = 14;
+  const totalW = cols.reduce((a, b) => a + b, 0);
+
+  // header row
+  doc.setFillColor(BRAND);
+  doc.rect(startX, y, totalW, rowH, "F");
+  applyPdfFont(doc, fontFam, false);
+  doc.setTextColor("#ffffff");
+  doc.setFontSize(8);
+  let cx = startX + 2;
+  for (let i = 0; i < headers.length; i++) {
+    doc.text(headers[i], cx, y + 6.5);
+    cx += cols[i];
+  }
+  y += rowH;
+
+  // data rows
+  rows.forEach((row, idx) => {
+    const bg = idx % 2 === 0 ? "#ffffff" : BRAND_SOFT;
+    doc.setFillColor(bg);
+    doc.rect(startX, y, totalW, rowH, "F");
+    applyPdfFont(doc, fontFam, false);
+    doc.setTextColor(DARK);
+    doc.setFontSize(7.5);
+    cx = startX + 2;
+    const cells = [
+      doc.splitTextToSize(row.title, cols[0] - 4)[0] as string,
+      row.district,
+      formatCzk(row.price),
+      row.agentName,
+    ];
+    cells.forEach((cell, i) => {
+      doc.text(cell, cx, y + 6.5);
+      cx += cols[i];
+    });
+    y += rowH;
+  });
+
+  return y;
+}
+
 /**
  * PDF výstup z Ask Pepa / create_presentation — Noto (diakritika), barvy, grafy, AI texty.
  */
@@ -302,6 +352,14 @@ export async function buildAgentReportPdfBuffer(
   doc.setTextColor(DARK);
   doc.setFontSize(9);
   doc.text(closeWrapped, 16, y + 7);
+
+  if ((report.topProperties ?? []).length > 0) {
+    iy2 += 8;
+    iy2 = ensureSpace(doc, iy2, 20 + (report.topProperties!.length * 10) + 10);
+    iy2 = sectionHeader(doc, fontFam, iy2, "Top 5 prodaných nemovitostí", "Seřazeno podle ceny — v daném období");
+    iy2 += 4;
+    iy2 = drawPropertyTable(doc, fontFam, iy2, report.topProperties!);
+  }
 
   for (let p = 1; p <= doc.getNumberOfPages(); p++) {
     drawFooter(p);
