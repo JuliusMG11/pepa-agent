@@ -89,6 +89,7 @@ export async function POST(request: Request): Promise<Response> {
     name: string;
     input: Record<string, unknown>;
   }> = [];
+  const toolResultsForHistory: Array<{ tool_use_id: string; content: string }> = [];
   const richBlocksForHistory: Array<{ type: string; payload: unknown }> = [];
 
   const stream = new ReadableStream({
@@ -107,16 +108,19 @@ export async function POST(request: Request): Promise<Response> {
             sendSse(JSON.stringify({ type: "text", chunk }));
           },
 
-          async onToolCall(name, input) {
-            // Track tool call for history persistence
-            const toolId = `tool_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-            toolCallsForHistory.push({ id: toolId, name, input });
+          async onToolCall(name, input, toolUseId) {
+            // Use Claude's actual tool_use_id so history round-trips correctly
+            toolCallsForHistory.push({ id: toolUseId, name, input });
 
             const result = await executeTool(name, input, {
               userId: user.id,
               supabase,
             });
             return result;
+          },
+
+          onToolResult(toolUseId, content) {
+            toolResultsForHistory.push({ tool_use_id: toolUseId, content });
           },
 
           onEvent(type, payload) {
@@ -151,6 +155,10 @@ export async function POST(request: Request): Promise<Response> {
               toolCalls:
                 toolCallsForHistory.length > 0
                   ? toolCallsForHistory
+                  : undefined,
+              toolResults:
+                toolResultsForHistory.length > 0
+                  ? toolResultsForHistory
                   : undefined,
               richBlocks:
                 richBlocksForHistory.length > 0

@@ -35,8 +35,10 @@ export interface RunAgentParams {
   onText: (chunk: string) => void;
   onToolCall: (
     name: string,
-    input: Record<string, unknown>
+    input: Record<string, unknown>,
+    toolUseId: string
   ) => Promise<unknown>;
+  onToolResult?: (toolUseId: string, content: string) => void;
   onEvent: (type: string, payload: unknown) => void;
 }
 
@@ -45,7 +47,7 @@ export interface RunAgentParams {
  * and continues until the model stops with end_turn.
  */
 export async function runAgent(params: RunAgentParams): Promise<string> {
-  const { messages, systemPrompt, onText, onToolCall, onEvent } = params;
+  const { messages, systemPrompt, onText, onToolCall, onToolResult, onEvent } = params;
   const allMessages: Anthropic.MessageParam[] = [...messages];
   let fullText = "";
 
@@ -98,7 +100,8 @@ export async function runAgent(params: RunAgentParams): Promise<string> {
       toolUseBlocks.map(async (toolUse) => {
         const result = await onToolCall(
           toolUse.name,
-          toolUse.input as Record<string, unknown>
+          toolUse.input as Record<string, unknown>,
+          toolUse.id
         );
 
         // Emit rich SSE — posílat jen data, ne celý Result (jinak klient nemá chart_type/series a .map() spadne)
@@ -125,10 +128,13 @@ export async function runAgent(params: RunAgentParams): Promise<string> {
           if (res.success && res.data) onEvent("email_list", res.data);
         }
 
+        const resultContent = stringifyForModel(result);
+        onToolResult?.(toolUse.id, resultContent);
+
         return {
           type: "tool_result" as const,
           tool_use_id: toolUse.id,
-          content: stringifyForModel(result),
+          content: resultContent,
         };
       })
     );

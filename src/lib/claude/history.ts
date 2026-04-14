@@ -27,9 +27,9 @@ export async function loadConversationHistory(
   const rows = (data as ConversationRow[]).reverse();
   const messages: Anthropic.MessageParam[] = [];
 
-  for (const row of rows) {
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]!;
     if (row.role === "assistant") {
-      // Use MessageParam content block types (not response ContentBlock types)
       const content: Array<
         Anthropic.TextBlockParam | Anthropic.ToolUseBlockParam
       > = [];
@@ -38,8 +38,13 @@ export async function loadConversationHistory(
         content.push({ type: "text", text: row.content });
       }
 
-      // Reconstruct tool_use blocks from stored tool_calls
-      if (row.tool_calls) {
+      // Only add tool_use blocks if the NEXT row is a matching tool_result row.
+      // If not (corrupted history from before this fix), skip tool_use blocks
+      // to avoid sending an invalid conversation to Anthropic.
+      const nextRow = rows[i + 1];
+      const hasMatchingToolResult = nextRow?.role === "tool";
+
+      if (row.tool_calls && hasMatchingToolResult) {
         const toolCalls = row.tool_calls as Array<{
           id: string;
           name: string;

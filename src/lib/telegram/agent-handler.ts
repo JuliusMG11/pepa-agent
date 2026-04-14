@@ -70,7 +70,7 @@ export async function handleAgentQuery(
       onText: (chunk) => {
         fullResponse += chunk;
       },
-      onToolCall: async (name, input) =>
+      onToolCall: async (name, input, _toolUseId) =>
         executeTool(name, input, { userId: profile.id, supabase }),
       onEvent: (type, payload) => {
         richBlocks.push({ type, payload });
