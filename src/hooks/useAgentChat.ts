@@ -110,8 +110,15 @@ export function useAgentChat() {
         sessionCreatedRef.current = false;
         return;
       }
-      const json = (await res.json()) as { sessions: SessionRecord[] };
-      const list = json.sessions ?? [];
+      const json = (await res.json()) as {
+        sessions: { id: string; title: string; created_at: string; updated_at: string }[];
+      };
+      const list: SessionRecord[] = (json.sessions ?? []).map((s) => ({
+        id: s.id,
+        title: s.title,
+        createdAt: s.created_at,
+        updatedAt: s.updated_at,
+      }));
       setSessions(list);
       if (list.length > 0) {
         const latest = list[0];
