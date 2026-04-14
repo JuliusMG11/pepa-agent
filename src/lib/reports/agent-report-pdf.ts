@@ -317,6 +317,18 @@ export async function buildAgentReportPdfBuffer(
     y = drawHorizontalBarChart(doc, 14, y, W - 28, wRows, "#6366f1", fontFam);
   }
 
+  if ((report.pipelineFunnel ?? []).length > 0) {
+    y += 8;
+    y = ensureSpace(doc, y, 50);
+    y = sectionHeader(doc, fontFam, y, "Pipeline — aktuální stav", "Počet leadů v každé fázi (celkem, nepřefiltrováno)");
+    y += 6;
+    const funnelRows = (report.pipelineFunnel ?? []).map((s) => ({
+      label: s.label,
+      value: s.count,
+    }));
+    y = drawHorizontalBarChart(doc, 14, y, W - 28, funnelRows, "#7c3aed", fontFam);
+  }
+
   // Kam se zlepšit
   doc.addPage();
   doc.setFillColor(SHEET);
