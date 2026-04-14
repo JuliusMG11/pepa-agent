@@ -94,7 +94,7 @@ function drawPropertyTable(
     doc.setFontSize(7.5);
     cx = startX + 2;
     const cells = [
-      doc.splitTextToSize(row.title, cols[0] - 4)[0] as string,
+      doc.splitTextToSize(row.title || "—", cols[0] - 4)[0] as string,
       row.district,
       formatCzk(row.price),
       row.agentName,
@@ -354,7 +354,7 @@ export async function buildAgentReportPdfBuffer(
   doc.text(closeWrapped, 16, y + 7);
 
   if ((report.topProperties ?? []).length > 0) {
-    y += 8;
+    y += closeBoxH + 8;
     y = ensureSpace(doc, y, 20 + (report.topProperties!.length * 10) + 10);
     y = sectionHeader(doc, fontFam, y, "Top 5 prodaných nemovitostí", "Seřazeno podle ceny — v daném období");
     y += 4;
