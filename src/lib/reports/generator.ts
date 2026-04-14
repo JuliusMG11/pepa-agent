@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import type { ReportData, ReportPeriod } from "@/types/reports";
+import type { ReportData, ReportPeriod, TopProperty, PipelineStage } from "@/types/reports";
 import {
   LEAD_SOURCE_LABELS_CS,
   LEAD_STATUS_LABELS_CS,
@@ -57,6 +57,7 @@ export async function generateReport(
     soldPropertiesResult,
     activitiesResult,
     allLeadsForConv,
+    topSoldResult,
   ] = await Promise.all([
     // Leads created in period
     supabase
@@ -99,6 +100,16 @@ export async function generateReport(
       .in("status", ["closed_won", "closed_lost"])
       .gte("closed_at", fromIso)
       .lte("closed_at", toIso),
+    // Top 5 sold properties by price in period
+    supabase
+      .from("properties")
+      .select("title, district, price, agent_id")
+      .eq("status", "sold")
+      .gte("updated_at", fromIso)
+      .lte("updated_at", toIso)
+      .is("deleted_at", null)
+      .order("price", { ascending: false })
+      .limit(5),
   ]);
 
   const leads = leadsResult.data ?? [];
@@ -151,6 +162,55 @@ export async function generateReport(
       .single();
     if (profile) topAgent = { name: profile.full_name, deals: topAgentDeals };
   }
+
+  // Top properties — resolve agent names
+  const topProperties: TopProperty[] = [];
+  for (const prop of topSoldResult.data ?? []) {
+    let agentName = "Neznámý";
+    if (prop.agent_id) {
+      const { data: agentProfile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", prop.agent_id)
+        .single();
+      if (agentProfile) agentName = agentProfile.full_name;
+    }
+    topProperties.push({
+      title: prop.title,
+      district: prop.district,
+      price: prop.price ?? 0,
+      agentName,
+    });
+  }
+
+  // Pipeline funnel — current snapshot of open leads by status
+  const PIPELINE_STAGE_LABELS: Record<string, string> = {
+    new: "Nový",
+    contacted: "Kontaktován",
+    viewing_scheduled: "Prohlídka",
+    offer_made: "Nabídka",
+    closed_won: "Výhra",
+    closed_lost: "Ztráta",
+  };
+
+  const { data: allOpenLeads } = await supabase
+    .from("leads")
+    .select("status")
+    .is("deleted_at", null);
+
+  const funnelMap: Record<string, number> = {};
+  for (const lead of allOpenLeads ?? []) {
+    const st = lead.status;
+    funnelMap[st] = (funnelMap[st] ?? 0) + 1;
+  }
+
+  const pipelineFunnel: PipelineStage[] = Object.entries(PIPELINE_STAGE_LABELS).map(
+    ([status, label]) => ({
+      status,
+      label,
+      count: funnelMap[status] ?? 0,
+    })
+  );
 
   // Leads by source (české popisky)
   const sourceMap: Record<string, number> = {};
@@ -235,5 +295,7 @@ export async function generateReport(
     propertiesByDistrict,
     activitiesByType,
     weeklyBreakdown,
+    topProperties,
+    pipelineFunnel,
   };
 }
