@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { insertMonitoringJob } from "@/lib/monitoring/insert-job";
 import { normalizeUuid } from "@/lib/validation/uuid";
+import { computeNextRunAt } from "@/lib/monitoring/compute-next-run-at";
 
 const BodySchema = z.object({
   location: z.string().min(1, "Vyberte lokalitu."),
@@ -119,14 +120,6 @@ export async function DELETE(request: Request): Promise<Response> {
   }
 
   return NextResponse.json({ success: true });
-}
-
-function computeNextRunAt(runHour: number): Date {
-  const now = new Date();
-  const candidate = new Date(now);
-  candidate.setHours(runHour, 0, 0, 0);
-  if (candidate <= now) candidate.setDate(candidate.getDate() + 1);
-  return candidate;
 }
 
 const PatchBodySchema = z.object({

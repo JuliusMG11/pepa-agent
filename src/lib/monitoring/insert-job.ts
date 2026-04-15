@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import type { Result } from "@/types/app";
 import { MONITORING_ALLOWED_DISTRICTS } from "./allowed-districts";
+import { computeNextRunAt } from "./compute-next-run-at";
 
 export type MonitoringSchedule = "hourly" | "daily" | "twice_daily";
 
@@ -16,14 +17,6 @@ export interface InsertMonitoringJobParams {
   notifyTelegram?: boolean;
   notifyEmail?: boolean;
   runHour?: number;
-}
-
-function computeNextRunAt(runHour: number): Date {
-  const now = new Date();
-  const candidate = new Date(now);
-  candidate.setHours(runHour, 0, 0, 0);
-  if (candidate <= now) candidate.setDate(candidate.getDate() + 1);
-  return candidate;
 }
 
 export async function insertMonitoringJob(
