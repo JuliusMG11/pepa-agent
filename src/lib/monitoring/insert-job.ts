@@ -15,6 +15,15 @@ export interface InsertMonitoringJobParams {
   priceMax?: number;
   notifyTelegram?: boolean;
   notifyEmail?: boolean;
+  runHour?: number;
+}
+
+function computeNextRunAt(runHour: number): Date {
+  const now = new Date();
+  const candidate = new Date(now);
+  candidate.setHours(runHour, 0, 0, 0);
+  if (candidate <= now) candidate.setDate(candidate.getDate() + 1);
+  return candidate;
 }
 
 export async function insertMonitoringJob(
@@ -31,6 +40,7 @@ export async function insertMonitoringJob(
     };
   }
 
+  const runHour = params.runHour ?? 8;
   const name = params.name?.trim() || `Monitoring: ${location}`;
   const property_types = params.propertyTypes ?? ["byt"];
   const notify_telegram = params.notifyTelegram ?? true;
@@ -54,6 +64,8 @@ export async function insertMonitoringJob(
       created_by: params.userId,
       notify_telegram,
       notify_email,
+      run_hour: runHour,
+      next_run_at: computeNextRunAt(runHour).toISOString(),
     })
     .select("id, name")
     .single();
