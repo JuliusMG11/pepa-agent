@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Loader2,
   MapPin,
+  Pencil,
   Plus,
   RefreshCw,
   Sparkles,
@@ -62,6 +63,11 @@ function sourceLabel(source: string): string {
 
 const LISTINGS_PAGE = 10;
 
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => ({
+  value: h,
+  label: `${String(h).padStart(2, "0")}:00`,
+}));
+
 interface Props {
   jobs: MonitoringJob[];
   listings: MarketListing[];
@@ -85,6 +91,10 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
   const [listingVisible, setListingVisible] = useState(LISTINGS_PAGE);
   const [jobToDelete, setJobToDelete] = useState<MonitoringJob | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [newRunHour, setNewRunHour] = useState<number>(8);
+  const [editJob, setEditJob] = useState<MonitoringJob | null>(null);
+  const [editRunHour, setEditRunHour] = useState<number>(8);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setJobs(initialJobs);
@@ -228,7 +238,7 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
       const res = await fetch("/api/monitoring/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ location: newLocation }),
+        body: JSON.stringify({ location: newLocation, run_hour: newRunHour }),
       });
       const json = (await res.json().catch(() => ({}))) as {
         error?: string;
@@ -242,10 +252,39 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
       toast.success("Lokalita přidána do sledování.");
       setAddOpen(false);
       setNewLocation("");
+      setNewRunHour(8);
       if (json.id) setActiveJobId(json.id);
       router.refresh();
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleSaveEdit() {
+    if (!editJob) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/monitoring/jobs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editJob.id, run_hour: editRunHour }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        toast.error(
+          typeof json.error === "string" ? json.error : "Uložení selhalo."
+        );
+        return;
+      }
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === editJob.id ? { ...j, run_hour: editRunHour } : j
+        )
+      );
+      toast.success("Čas spuštění upraven.");
+      setEditJob(null);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -402,6 +441,19 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
                       </p>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditJob(job);
+                          setEditRunHour(job.run_hour ?? 8);
+                        }}
+                        disabled={busy}
+                        className="p-1.5 rounded-lg transition-opacity disabled:opacity-50"
+                        style={{ color: "var(--color-text-muted)" }}
+                        aria-label="Upravit čas spuštění"
+                      >
+                        <Pencil size={14} />
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleToggleJob(job)}
@@ -633,6 +685,30 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
                   ))}
                 </select>
               </label>
+              <label className="mt-4 block">
+                <span
+                  className="mb-1 block text-[10px] font-bold uppercase tracking-wider"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  Čas spuštění
+                </span>
+                <select
+                  value={newRunHour}
+                  onChange={(e) => setNewRunHour(Number(e.target.value))}
+                  className="w-full rounded-lg px-3 py-2.5 text-sm"
+                  style={{
+                    backgroundColor: "var(--color-bg-subtle)",
+                    border: "1px solid rgba(199,196,215,0.3)",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {HOUR_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </DialogSheetScrollBody>
             <div
               className="flex shrink-0 justify-end gap-3 border-t px-6 py-4"
@@ -655,6 +731,91 @@ export function MonitoringClient({ jobs: initialJobs, listings }: Props) {
                 style={{ backgroundColor: "var(--color-brand)" }}
               >
                 {creating ? "Ukládám…" : "Přidat"}
+              </button>
+            </div>
+          </DialogSheetPanel>
+        </DialogSheetRoot>
+      )}
+
+      {editJob && (
+        <DialogSheetRoot onClose={() => setEditJob(null)}>
+          <DialogSheetPanel
+            maxWidthClassName="max-w-md"
+            className="border border-[rgba(199,196,215,0.2)]"
+          >
+            <div
+              className="relative flex shrink-0 items-start justify-between gap-3 border-b px-6 py-5 pr-14"
+              style={{ borderColor: "rgba(199,196,215,0.2)" }}
+            >
+              <h2
+                className="text-base font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Upravit sledování
+              </h2>
+              <button
+                type="button"
+                onClick={() => setEditJob(null)}
+                className="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-opacity hover:opacity-70"
+                style={{ color: "var(--color-text-muted)" }}
+                aria-label="Zavřít"
+              >
+                <X size={16} strokeWidth={2} />
+              </button>
+            </div>
+            <DialogSheetScrollBody className="!py-6">
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                {editJob.locations[0] ?? editJob.name}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
+                Nastavte čas, kdy má monitoring každý den spustit scraper.
+              </p>
+              <label className="mt-4 block">
+                <span
+                  className="mb-1 block text-[10px] font-bold uppercase tracking-wider"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  Čas spuštění
+                </span>
+                <select
+                  value={editRunHour}
+                  onChange={(e) => setEditRunHour(Number(e.target.value))}
+                  className="w-full rounded-lg px-3 py-2.5 text-sm"
+                  style={{
+                    backgroundColor: "var(--color-bg-subtle)",
+                    border: "1px solid rgba(199,196,215,0.3)",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {HOUR_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </DialogSheetScrollBody>
+            <div
+              className="flex shrink-0 justify-end gap-3 border-t px-6 py-4"
+              style={{ borderColor: "rgba(199,196,215,0.2)" }}
+            >
+              <button
+                type="button"
+                onClick={() => setEditJob(null)}
+                disabled={saving}
+                className="cursor-pointer rounded-lg px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-50"
+                style={{ backgroundColor: "#f0ecf4", color: "var(--color-text-secondary)" }}
+              >
+                Zrušit
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEdit}
+                disabled={saving}
+                className="cursor-pointer rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: "var(--color-brand)" }}
+              >
+                {saving ? "Ukládám…" : "Uložit"}
               </button>
             </div>
           </DialogSheetPanel>
