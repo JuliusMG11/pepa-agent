@@ -118,3 +118,72 @@ export async function DELETE(request: Request): Promise<Response> {
 
   return NextResponse.json({ success: true });
 }
+
+function computeNextRunAt(runHour: number): Date {
+  const now = new Date();
+  const candidate = new Date(now);
+  candidate.setHours(runHour, 0, 0, 0);
+  if (candidate <= now) candidate.setDate(candidate.getDate() + 1);
+  return candidate;
+}
+
+const PatchBodySchema = z.object({
+  id: z.string().uuid("Neplatné ID úlohy."),
+  run_hour: z
+    .number()
+    .int()
+    .min(0, "Neplatný čas spuštění.")
+    .max(23, "Neplatný čas spuštění."),
+});
+
+export async function PATCH(request: Request): Promise<Response> {
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Neplatný JSON." }, { status: 400 });
+  }
+
+  const parsed = PatchBodySchema.safeParse(json);
+  if (!parsed.success) {
+    const msg = parsed.error.issues.map((i) => i.message).join(", ");
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Nepřihlášený uživatel." }, { status: 401 });
+  }
+
+  const { data: job } = await supabase
+    .from("monitoring_jobs")
+    .select("id, created_by")
+    .eq("id", parsed.data.id)
+    .single();
+
+  if (!job || job.created_by !== user.id) {
+    return NextResponse.json({ error: "Úloha nenalezena." }, { status: 404 });
+  }
+
+  const nextRunAt = computeNextRunAt(parsed.data.run_hour);
+
+  const { error } = await supabase
+    .from("monitoring_jobs")
+    .update({
+      run_hour: parsed.data.run_hour,
+      next_run_at: nextRunAt.toISOString(),
+    })
+    .eq("id", parsed.data.id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    success: true,
+    next_run_at: nextRunAt.toISOString(),
+  });
+}
