@@ -350,6 +350,7 @@ export type Database = {
           notify_email: boolean
           notify_telegram: boolean
           query: string
+          run_hour: number
           telegram_chat_id: number | null
         }
         Insert: {
@@ -365,6 +366,7 @@ export type Database = {
           notify_email?: boolean
           notify_telegram?: boolean
           query: string
+          run_hour?: number
           telegram_chat_id?: number | null
         }
         Update: {
@@ -380,6 +382,7 @@ export type Database = {
           notify_email?: boolean
           notify_telegram?: boolean
           query?: string
+          run_hour?: number
           telegram_chat_id?: number | null
         }
         Relationships: [
