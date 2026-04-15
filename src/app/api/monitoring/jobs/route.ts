@@ -10,6 +10,7 @@ const BodySchema = z.object({
   price_max: z.number().positive().optional(),
   notify_telegram: z.boolean().optional(),
   notify_email: z.boolean().optional(),
+  run_hour: z.number().int().min(0).max(23).optional(),
 });
 
 export async function POST(request: Request): Promise<Response> {
@@ -41,6 +42,7 @@ export async function POST(request: Request): Promise<Response> {
     priceMax: parsed.data.price_max,
     notifyTelegram: parsed.data.notify_telegram,
     notifyEmail: parsed.data.notify_email,
+    runHour: parsed.data.run_hour,
   });
 
   if (!result.success) {
