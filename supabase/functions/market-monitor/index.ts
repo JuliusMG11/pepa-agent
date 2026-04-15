@@ -448,5 +448,18 @@ serve(async () => {
     results.push({ job: job.name, new_count: newCount });
   }
 
+  // AI top picks — fire-and-forget, never crashes the scraper
+  const appUrl = Deno.env.get("NEXT_PUBLIC_APP_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (appUrl && serviceRoleKey) {
+    await fetch(`${appUrl}/api/monitoring/top-picks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceRoleKey}`,
+      },
+    }).catch(() => {});
+  }
+
   return new Response(JSON.stringify({ status: "ok", results }), { status: 200 });
 });
